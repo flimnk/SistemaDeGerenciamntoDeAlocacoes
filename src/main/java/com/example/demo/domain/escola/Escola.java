@@ -1,22 +1,21 @@
 package com.example.demo.domain.escola;
 
-import com.example.demo.domain.curso.escola.Curso;
+import com.example.demo.domain.curso.Curso;
 import com.example.demo.domain.interfaces.Ativavel;
 import com.example.demo.domain.professor.Professor;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.NoArgsConstructor; // Novo: Para o construtor padrão
-import lombok.AllArgsConstructor; // Novo: Opcional, mas útil
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "escola")
-@Getter
-@Setter
-
+@Data
+@NoArgsConstructor
 public class Escola implements Ativavel {
 
     @Id
@@ -36,11 +35,11 @@ public class Escola implements Ativavel {
 
 
 
-    @OneToMany(mappedBy = "escola")
+    @OneToMany(mappedBy = "escola",cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Curso> cursos = new HashSet<>();
 
 
-    protected  Escola(){};
+
     public Escola(CategoriaEscola categoriaEscola) {
         if(categoriaEscola == null){
             throw new IllegalArgumentException("Escola deve ter uma categoria");
@@ -48,7 +47,24 @@ public class Escola implements Ativavel {
         this.categoriaEscola = categoriaEscola;
         this.ativo = true;
     }
+    public void adicionarCurso(Curso curso) {
+        this.cursos.add(curso);
 
+
+        if (curso.getEscola() != this) {
+            curso.setEscola(this);
+        }
+    }
+
+
+    public void removerCurso(Curso curso) {
+        this.cursos.remove(curso);
+
+
+        if (curso.getEscola() != null && curso.getEscola().equals(this)) {
+            curso.setEscola(null);
+        }
+    }
 
     @Override
     public boolean isAtivo() {

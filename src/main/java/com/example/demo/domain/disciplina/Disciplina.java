@@ -4,36 +4,37 @@ import com.example.demo.domain.Matriz.Matriz;
 import com.example.demo.domain.interfaces.Ativavel;
 import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @Entity
+@AllArgsConstructor
+
+@NoArgsConstructor
 @Table (name = "disciplina")
 public class Disciplina implements Ativavel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nome",nullable = false)
+    @Column(name = "nome",nullable = false,unique = true)
     private  String nome;
 
-    @Column(name = "descricao",nullable = false)
+    @Column(name = "descricao",nullable = false,unique = true)
     private  String descricao;
 
     @Column(name = "ativo", nullable = false)
-    private Boolean ativo;
+    private boolean ativo;
 
 
     @OneToMany(mappedBy = "disciplina", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MatrizDisciplina> matrizes = new HashSet<>();
 
 
-    protected  Disciplina(){};
+
 
     public Disciplina( String nome, String descricao) {
         if(nome == null || nome.isBlank()) throw  new IllegalArgumentException("Disciplina deve ter um nome");
@@ -43,6 +44,22 @@ public class Disciplina implements Ativavel {
         this.ativo = true;
     }
 
+    public void adicionarMatriz(MatrizDisciplina matrizDisciplina) {
+        this.matrizes.add(matrizDisciplina);
+
+
+        if (matrizDisciplina.getDisciplina() != this) {
+            matrizDisciplina.setDisciplina(this);
+        }
+    }
+    public void removerMatriz(MatrizDisciplina matrizDisciplina) {
+        this.matrizes.remove(matrizDisciplina);
+
+
+        if (matrizDisciplina.getDisciplina() != null && matrizDisciplina.getDisciplina().equals(this)) {
+            matrizDisciplina.setDisciplina(null);
+        }
+    }
     @Override
     public boolean isAtivo() {
         return ativo;

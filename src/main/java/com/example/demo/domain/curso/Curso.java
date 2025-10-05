@@ -1,11 +1,10 @@
-package com.example.demo.domain.curso.escola;
+package com.example.demo.domain.curso;
 
 import com.example.demo.domain.Matriz.Matriz;
 import com.example.demo.domain.escola.Escola;
+import com.example.demo.domain.turma.Turma;
 import jakarta.persistence.*;
-import lombok.Generated;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;
@@ -13,8 +12,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "curso")
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class Curso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,11 +29,14 @@ public class Curso {
     @Column(name="duracao_em_semestre", nullable = false )
     private Integer duracaoEmSemestre;
 
-    @OneToMany(mappedBy = "curso", fetch =  FetchType.LAZY)
+    @OneToMany(mappedBy = "curso", fetch =  FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<Matriz> matrizes  =  new HashSet<>();
 
 
-    protected Curso(){};
+    @OneToMany(mappedBy = "curso",fetch =  FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private  Set<Turma> turmas =  new HashSet<>();
+
+
     public  Curso(Escola escola, String nome, Integer duracaoEmSemestre){
         if(escola == null) throw  new IllegalArgumentException("Curso deve possuir uma escola");
         if(duracaoEmSemestre == null)  throw  new IllegalArgumentException("Curso deve possuir a quantidades de semestre");
@@ -45,5 +47,31 @@ public class Curso {
         this.duracaoEmSemestre = duracaoEmSemestre;
     }
 
+    public void adicionarTurma(Turma turma) {
+        this.turmas.add(turma);
+        turma.setCurso(this);
+    }
 
+    public void removerTurma(Turma turma) {
+        this.turmas.remove(turma);
+        if (turma.getCurso() != null && turma.getCurso().equals(this)) {
+            turma.setCurso(null);
+        }
+    }
+    public void adicionarMatriz(Matriz matriz) {
+        this.matrizes.add(matriz);
+        if (matriz.getCurso() != this) {
+            matriz.setCurso(this);
+        }
+    }
+
+    public void removerMatriz(Matriz matriz) {
+        this.matrizes.remove(matriz);
+
+
+        if (matriz.getCurso() != null && matriz.getCurso().equals(this)) {
+            matriz.setCurso(null);
+        }
+
+}
 }

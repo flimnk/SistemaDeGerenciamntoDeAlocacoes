@@ -1,27 +1,36 @@
 package com.example.demo.domain.matriz_disciplina;
 
 import com.example.demo.domain.Matriz.Matriz;
+import com.example.demo.domain.alocacao.Alocacao;
 import com.example.demo.domain.disciplina.Disciplina;
+import com.example.demo.domain.prioridade.Prioridade;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+import java.util.HashSet;
+import java.util.Set;
+
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "matriz_disciplina")
 public class MatrizDisciplina {
 
-    @EmbeddedId
-    private MatrizDisciplinaId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId("matrizId")
+
+    @ManyToOne( optional = false)
+
     @JoinColumn(name = "matriz_id", nullable = false)
     private Matriz matriz;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId("disciplinaId")
+    @ManyToOne( optional = false)
+
     @JoinColumn(name = "disciplina_id", nullable = false)
     private Disciplina disciplina;
 
@@ -31,11 +40,16 @@ public class MatrizDisciplina {
     @Column(name = "semestre", nullable = false)
     private int semestre;
 
+    @OneToMany(mappedBy = "matrizDisciplina", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Alocacao> alocacoes = new HashSet<>();
+
+    @OneToMany(mappedBy = "matrizDisciplina", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Prioridade> prioridades = new HashSet<>();
+
     @Enumerated(EnumType.STRING)
     @Column(name = "obrigatoria", nullable = false)
     private Obrigatoriedade obrigatoria;
 
-    protected MatrizDisciplina() {}
 
     public MatrizDisciplina(Matriz matriz,
                             Disciplina disciplina,
@@ -55,6 +69,36 @@ public class MatrizDisciplina {
         this.semestre = semestre;
         this.obrigatoria = obrigatoria;
 
-        this.id = new MatrizDisciplinaId(matriz.getId(), disciplina.getId());
+
+    }
+
+    public void adicionarPrioridade(Prioridade prioridade) {
+
+        this.prioridades.add(prioridade);
+        if (prioridade.getMatrizDisciplina() != this) {
+            prioridade.setMatrizDisciplina(this);
+        }
+    }
+
+    public void removerPrioridade(Prioridade prioridade) {
+        this.prioridades.remove(prioridade);
+        if (prioridade.getMatrizDisciplina() != null && prioridade.getMatrizDisciplina().equals(this)) {
+            prioridade.setMatrizDisciplina(null);
+        }
+    }
+
+
+    public void adicionarAlocacao(Alocacao alocacao) {
+        this.alocacoes.add(alocacao);
+        if (alocacao.getMatrizDisciplina() != this) {
+            alocacao.setMatrizDisciplina(this);
+        }
+    }
+    public void removerAlocacao(Alocacao alocacao) {
+        this.alocacoes.remove(alocacao);
+
+        if (alocacao.getMatrizDisciplina() != null && alocacao.getMatrizDisciplina().equals(this)) {
+            alocacao.setMatrizDisciplina(null);
+        }
     }
 }

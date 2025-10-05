@@ -2,9 +2,15 @@ package com.example.demo.domain.formacao;
 
 import com.example.demo.domain.professor.Professor;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.util.List;
 
+@NoArgsConstructor
+@Data
 @Entity
 @Table(name = "formacao")
 public class Formacao {
@@ -30,9 +36,9 @@ public class Formacao {
     @Column(nullable = false, length = 20)
     private CategoriaDaTitulacao categoria;
 
-    protected Formacao() {}
 
-    public Formacao(String nomeCurso, LocalDate anoConclusao, String nomeInstituicao, CategoriaDaTitulacao categoria) {
+
+    public Formacao(String nomeCurso, LocalDate anoConclusao, String nomeInstituicao, CategoriaDaTitulacao categoria, Professor professor) {
         if (nomeCurso == null || nomeCurso.isBlank())
             throw new IllegalArgumentException("Nome do curso não pode ser vazio");
         if (anoConclusao == null)
@@ -41,14 +47,19 @@ public class Formacao {
             throw new IllegalArgumentException("Nome da instituição não pode ser vazio");
         if (categoria == null)
             throw new IllegalArgumentException("Categoria da titulação é obrigatória");
+        if (professor== null)
+            throw new IllegalArgumentException("Formação deve estar vinculado a um professor");
+
 
         this.nomeCurso = nomeCurso;
         this.anoConclusao = anoConclusao;
         this.nomeInstituicao = nomeInstituicao;
         this.categoria = categoria;
+        this.professor = professor;
     }
 
-    // Getters
+
+
     public Long getId() {
         return id;
     }

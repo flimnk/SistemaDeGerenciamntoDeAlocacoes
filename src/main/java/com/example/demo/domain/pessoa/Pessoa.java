@@ -3,11 +3,11 @@ package com.example.demo.domain.pessoa;
 import com.example.demo.domain.vo.Cpf;
 import com.example.demo.domain.vo.Email;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @MappedSuperclass
 public abstract class Pessoa {
 

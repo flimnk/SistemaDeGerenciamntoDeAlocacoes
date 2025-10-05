@@ -1,20 +1,23 @@
 package com.example.demo.domain.Matriz;
 
-import com.example.demo.domain.curso.escola.Curso;
+import com.example.demo.domain.curso.Curso;
 import com.example.demo.domain.disciplina.Disciplina;
 import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
 
 import com.example.demo.domain.matriz_disciplina.Obrigatoriedade;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Year;
 import java.util.HashSet;
 import java.util.Set;
-@Getter
+
 @Entity
-@Setter
+@Data
+@NoArgsConstructor
 @Table(name = "matriz")
 public class Matriz {
     @Id
@@ -36,7 +39,7 @@ public class Matriz {
     @OneToMany(mappedBy = "matriz", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MatrizDisciplina> disciplinas = new HashSet<>();
 
-    protected Matriz (){};
+
     public  Matriz (Curso curso ,   Year anoVigencia){
         if(curso == null) throw  new IllegalArgumentException("Matriz deve estar em um curso");
         if(anoVigencia == null ) throw  new IllegalArgumentException("Matriz deve estar em um curso");
