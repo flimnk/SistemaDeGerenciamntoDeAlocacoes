@@ -8,6 +8,7 @@ import com.example.demo.domain.interfaces.Ativavel;
 
 import com.example.demo.domain.pessoa.Pessoa;
 import com.example.demo.domain.prioridade.Prioridade;
+import com.example.demo.domain.professorHorario.ProfessorHorario;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,14 +36,8 @@ public class Professor extends Pessoa implements Ativavel {
     )
     private Set<Escola> escolas = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "professor_horario",
-            joinColumns = @JoinColumn(name = "professor_id"),
-            inverseJoinColumns = @JoinColumn(name = "horario_id")
-    )
-    private Set<Horario> horarios = new HashSet<>();
-
+    @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProfessorHorario> disponibilidades = new HashSet<>();
 
     @Column(nullable = false, unique = true)
     private String registro;
@@ -126,6 +121,24 @@ public class Professor extends Pessoa implements Ativavel {
         this.prioridades.remove(prioridade);
         if (prioridade.getProfessor() != null && prioridade.getMatrizDisciplina().equals(this)) {
             prioridade.setProfessor(null);
+        }
+    }
+
+
+    public void adicionarDisponibilidade(ProfessorHorario disponibilidade) {
+        this.disponibilidades.add(disponibilidade);
+
+
+        if (disponibilidade.getProfessor() != this) {
+            disponibilidade.setProfessor(this);
+        }
+    }
+
+    public void removerDisponibilidade(ProfessorHorario disponibilidade) {
+        this.disponibilidades.remove(disponibilidade);
+
+        if (disponibilidade.getProfessor() != null && disponibilidade.getProfessor().equals(this)) {
+            disponibilidade.setProfessor(null);
         }
     }
     @Override

@@ -25,12 +25,10 @@ public class MatrizDisciplina {
 
 
     @ManyToOne( optional = false)
-
     @JoinColumn(name = "matriz_id", nullable = false)
     private Matriz matriz;
 
     @ManyToOne( optional = false)
-
     @JoinColumn(name = "disciplina_id", nullable = false)
     private Disciplina disciplina;
 

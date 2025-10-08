@@ -2,6 +2,9 @@ package com.example.demo.domain.horario;
 
 import com.example.demo.domain.alocacao.Alocacao;
 import com.example.demo.domain.professor.Professor;
+import com.example.demo.domain.professorHorario.ProfessorHorario;
+import com.example.demo.infra.Exception.HorarioForaDoTurnoException;
+import com.example.demo.service.validation.HorarioValidator;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +14,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "horario")
+@Table(
+        name = "horario",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"dia_semana", "turno", "horario_inicio", "horario_fim"})
+)
 @Data
 @NoArgsConstructor
 public class Horario {
@@ -38,33 +44,35 @@ public class Horario {
     private Set<Alocacao> alocacoes = new HashSet<>();
 
 
-    @ManyToMany(mappedBy = "horarios",fetch = FetchType.LAZY)
-    private Set<Professor> professores = new HashSet<>();
-
-
+    @OneToMany(mappedBy = "horario", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProfessorHorario> disponibilidades = new HashSet<>();
 
     public Horario(DiaSemana diaSemana, Turno turno, LocalTime horarioInicio, LocalTime horarioFim) {
-        if (diaSemana == null) throw new IllegalArgumentException("O dia da semana é obrigatório.");
-        if (turno == null) throw new IllegalArgumentException("O turno é obrigatório.");
-        if (horarioInicio == null) throw new IllegalArgumentException("O horário de início é obrigatório.");
-        if (horarioFim == null) throw new IllegalArgumentException("O horário de fim é obrigatório.");
-
-
-        if (!horarioInicio.isBefore(horarioFim)) {
-            throw new IllegalArgumentException("O horário de início deve ser anterior ao horário de fim.");
-        }
-
+        HorarioValidator.validar(diaSemana, turno, horarioInicio, horarioFim);
 
         this.diaSemana = diaSemana;
         this.turno = turno;
         this.horarioInicio = horarioInicio;
         this.horarioFim = horarioFim;
-        this.alocacoes = new HashSet<>(); // Garante que a coleção seja inicializada
+        this.alocacoes = new HashSet<>();
     }
-    // Adicione à classe Horario:
+
+    public void atualizar(DiaSemana diaSemana, Turno turno, LocalTime horarioInicio, LocalTime horarioFim) {
+        DiaSemana novoDia = diaSemana != null ? diaSemana : this.diaSemana;
+        Turno novoTurno = turno != null ? turno : this.turno;
+        LocalTime novoInicio = horarioInicio != null ? horarioInicio : this.horarioInicio;
+        LocalTime novoFim = horarioFim != null ? horarioFim : this.horarioFim;
+        HorarioValidator.validar(novoDia, novoTurno, novoInicio, novoFim);
+
+        this.diaSemana = novoDia;
+        this.turno = novoTurno;
+        this.horarioInicio = novoInicio;
+        this.horarioFim = novoFim;
+    }
+
     public void adicionarAlocacao(Alocacao alocacao) {
         this.alocacoes.add(alocacao);
-        alocacao.setHorario(this); // Assume que Alocacao tem o método setHorario()
+        alocacao.setHorario(this);
     }
 
     public void removerAlocacao(Alocacao alocacao) {
@@ -74,14 +82,24 @@ public class Horario {
         }
     }
 
-    public void adicionarProfessor(Professor professor) {
-        this.professores.add(professor);
-        professor.getHorarios().add(this);
+    public void adicionarDisponibilidade(ProfessorHorario disponibilidade) {
+        this.disponibilidades.add(disponibilidade);
+
+
+        if (disponibilidade.getHorario() != this) {
+            disponibilidade.setHorario(this);
+        }
     }
 
-    public void removerProfessor(Professor professor) {
-        this.professores.remove(professor);
-        professor.getHorarios().remove(this);
+    public void removerDisponibilidade(ProfessorHorario disponibilidade) {
+        this.disponibilidades.remove(disponibilidade);
+
+
+        if (disponibilidade.getHorario() != null && disponibilidade.getHorario().equals(this)) {
+            disponibilidade.setHorario(null);
+        }
     }
+
+
 
 }
