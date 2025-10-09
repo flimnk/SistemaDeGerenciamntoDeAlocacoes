@@ -23,8 +23,8 @@ public class DisciplinaController {
     }
 
     @PostMapping
-    public ResponseEntity<DisciplinaResponse> criarDisciplina(@RequestBody @Valid DisciplinaCreateRequest disciplinaRequest) {
-        DisciplinaResponse novaDisciplina = disciplinaService.criar(disciplinaRequest);
+    public ResponseEntity<DisciplinaResponse> criarDisciplina(@RequestBody @Valid DisciplinaCreateRequest request) {
+        DisciplinaResponse novaDisciplina = disciplinaService.criar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaDisciplina);
     }
 
@@ -56,9 +56,9 @@ public class DisciplinaController {
         disciplinaService.deletar(id);
         return ResponseEntity.noContent().build();
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<DisciplinaResponse> atualizarDisciplina(@PathVariable Long id, @RequestBody @Valid DisciplinaUpdateRequest disciplinaRequest) {
-        DisciplinaResponse disciplinaAtualizada = disciplinaService.atualizar(id, disciplinaRequest);
+    @PatchMapping("/{id}")
+    public ResponseEntity<DisciplinaResponse> atualizarDisciplina(@PathVariable Long id, @RequestBody @Valid DisciplinaUpdateRequest request) {
+        DisciplinaResponse disciplinaAtualizada = disciplinaService.atualizar(id,request);
         return ResponseEntity.ok(disciplinaAtualizada);
     }
 }

@@ -27,7 +27,6 @@ public class HorarioService {
 
     @Transactional
     public Horario criar(HorarioCreateRequest request) {
-        System.out.println(request);
         if (horarioRepository.existsByDiaSemanaAndTurnoAndHorarioInicioAndHorarioFim(
                 request.diaSemana(),
                 request.turno(),

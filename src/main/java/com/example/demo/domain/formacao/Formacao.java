@@ -1,5 +1,6 @@
 package com.example.demo.domain.formacao;
 
+import com.example.demo.domain.formacao.dto.FormacaoUpdateRequest;
 import com.example.demo.domain.professor.Professor;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -12,7 +13,10 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "formacao")
+@Table(
+        name = "formacao",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"nome_curso", "ano_conclusao", "nome_instituicao", "professor_id","Categoria"})
+)
 public class Formacao {
 
     @Id
@@ -28,8 +32,8 @@ public class Formacao {
     @Column(name = "nome_instituicao", nullable = false, length = 150)
     private String nomeInstituicao;
 
-    @ManyToOne(fetch= FetchType.LAZY)
-    @JoinColumn(name = "professor_id", nullable = false)
+    @OneToOne (fetch= FetchType.LAZY)
+    @JoinColumn(name = "professor_id", nullable = false,unique = true)
     private Professor professor;
 
     @Enumerated(EnumType.STRING)
@@ -59,6 +63,19 @@ public class Formacao {
     }
 
 
+    public void atualizar(FormacaoUpdateRequest request, Professor professor) {
+        if (request.nomeCurso() != null) this.setNomeCurso(request.nomeCurso());
+        if (request.anoConclusao() != null) this.setAnoConclusao(request.anoConclusao());
+        if (request.nomeInstituicao() != null) this.setNomeInstituicao(request.nomeInstituicao());
+        if (request.categoria() != null) this.setCategoria(request.categoria());
+
+        if (professor != null) this.setProfessor(professor); // já recebe o professor válido
+    }
+
+    public void setProfessor(Professor professor) {
+        this.professor = professor;
+        this.professor.setFormacao(this);
+    }
 
     public Long getId() {
         return id;

@@ -1,4 +1,4 @@
-package com.example.demo.service.validation;// com.example.demo.domain.horario/HorarioValidator.java
+package com.example.demo.domain.horario.validation;// com.example.demo.domain.horario/HorarioValidator.java
 
 import com.example.demo.domain.horario.DiaSemana;
 import com.example.demo.domain.horario.Turno;

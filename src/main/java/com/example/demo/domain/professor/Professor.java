@@ -9,23 +9,30 @@ import com.example.demo.domain.interfaces.Ativavel;
 import com.example.demo.domain.pessoa.Pessoa;
 import com.example.demo.domain.prioridade.Prioridade;
 import com.example.demo.domain.professorHorario.ProfessorHorario;
+import com.example.demo.domain.vo.Cpf;
+import com.example.demo.domain.vo.Email;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
+
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @Entity
+@ToString
 @Table(name = "professor")
 
 public class Professor extends Pessoa implements Ativavel {
 
+
+    @Column(name ="registro",nullable = false, unique = true)
+    private String registro;
+
+    @OneToOne(mappedBy = "professor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Formacao formacao;
 
 
     @ManyToMany
@@ -39,12 +46,6 @@ public class Professor extends Pessoa implements Ativavel {
     @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProfessorHorario> disponibilidades = new HashSet<>();
 
-    @Column(nullable = false, unique = true)
-    private String registro;
-
-    @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Formacao> formacoes = new HashSet<>();
-
     @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Alocacao> alocacoes = new HashSet<>();
 
@@ -55,46 +56,31 @@ public class Professor extends Pessoa implements Ativavel {
     @Column(name = "is_ativo", nullable = false)
     private boolean ativo = true;
 
+    public Professor(
+            String nome,
+            Cpf cpf,
+            Email email,
+            String registro
 
-    public Professor(String registro, Set<Formacao> formacao) {
-        if (registro == null || registro.isBlank()) throw new IllegalArgumentException("Registro não pode ser nulo ou vazio");
-        if (formacao == null) throw new IllegalArgumentException("Formação é obrigatória");
+
+    ) {
+        super(nome, email , cpf);
+        if (registro == null || registro.isBlank()) {
+            throw new IllegalArgumentException("Registro não pode ser nulo ou vazio");
+        }
 
         this.registro = registro;
-        this.formacoes = formacao;
         this.ativo = true;
     }
 
     public void adicionarEscola(Escola escola) {
         this.escolas.add(escola);
-        // Garante que o lado Escola (coleção de professores) também seja atualizado.
         if (!escola.getProfessores().contains(this)) {
             escola.getProfessores().add(this);
         }
     }
 
 
-    public void removerEscola(Escola escola) {
-        this.escolas.remove(escola);
-
-        if (escola.getProfessores().contains(this)) {
-            escola.getProfessores().remove(this);
-        }
-    }
-    public void adicionarFormacao(Formacao formacao) {
-        this.formacoes.add(formacao);
-
-        if (formacao.getProfessor() != this) {
-            formacao.setProfessor(this);
-        }
-    }
-    public void removerFormacao(Formacao formacao) {
-        this.formacoes.remove(formacao);
-
-        if (formacao.getProfessor() != null && formacao.getProfessor().equals(this)) {
-            formacao.setProfessor(null);
-        }
-    }
     public void removerAlocacao(Alocacao alocacao) {
         this.alocacoes.remove(alocacao);
 
@@ -119,11 +105,11 @@ public class Professor extends Pessoa implements Ativavel {
 
     public void removerPrioridade(Prioridade prioridade) {
         this.prioridades.remove(prioridade);
-        if (prioridade.getProfessor() != null && prioridade.getMatrizDisciplina().equals(this)) {
+        // O correto seria verificar se prioridade.getProfessor() é igual a 'this'
+        if (prioridade.getProfessor() != null && prioridade.getProfessor().equals(this)) {
             prioridade.setProfessor(null);
         }
     }
-
 
     public void adicionarDisponibilidade(ProfessorHorario disponibilidade) {
         this.disponibilidades.add(disponibilidade);
@@ -141,6 +127,12 @@ public class Professor extends Pessoa implements Ativavel {
             disponibilidade.setProfessor(null);
         }
     }
+    public void setFormacao(Formacao formacao) {
+        this.formacao = formacao;
+        if (formacao != null && formacao.getProfessor() != this) {
+            formacao.setProfessor(this);
+        }
+    }
     @Override
     public boolean isAtivo() {
         return ativo;
@@ -155,4 +147,24 @@ public class Professor extends Pessoa implements Ativavel {
     public void desativar() {
         this.ativo = false;
     }
+
+    public void atualizar(Formacao formacao, String nome, String email, Set<Escola> novasEscolas) {
+        this.setEmail(email != null ? new Email(email) : this.getEmail());
+        this.formacao = formacao != null ? formacao : this.formacao;
+        this.setNome(nome != null ? nome : this.getNome());
+
+
+        if (novasEscolas != null) {
+            this.escolas.forEach(escola -> escola.getProfessores().remove(this));
+            this.escolas.clear();
+
+
+            novasEscolas.forEach(escola -> {
+                this.escolas.add(escola);
+                escola.getProfessores().add(this);
+            });
+        }
+    }
+
+
 }

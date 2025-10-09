@@ -3,10 +3,11 @@ package com.example.demo.domain.vo;
 
 import com.example.demo.infra.Exception.EmailInvalidoException;
 import jakarta.persistence.Embeddable;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
-
+@NoArgsConstructor
 @Embeddable
 public class Email {
     
@@ -14,7 +15,7 @@ public class Email {
     private static final Pattern EMAIL_PATTERN =
         Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
-    private final String endereco;
+    private String endereco;
 
     public Email(String endereco) {
 

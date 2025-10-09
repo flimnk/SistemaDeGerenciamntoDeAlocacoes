@@ -2,12 +2,15 @@ package com.example.demo.domain.vo;
 
 import com.example.demo.infra.Exception.CpfInvalidoException;
 import jakarta.persistence.Embeddable;
-import java.util.Objects;
+import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+@NoArgsConstructor
 @Embeddable
+
 public class Cpf {
 
-    private final String numero;
+    private  String numero;
 
     public Cpf(String numero) {
         if (!isValid(numero)) {

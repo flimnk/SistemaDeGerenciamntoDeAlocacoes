@@ -26,9 +26,7 @@ public class HorarioController {
         HorarioResponse response = new HorarioResponse(horarioService.criar(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<HorarioResponse> atualizar(
             @PathVariable Long id,
             @RequestBody HorarioUpdateRequest request

@@ -23,7 +23,7 @@ public class Turma  {
     private Long id;
 
 
-    @Column(name = "codigo",nullable = false)
+    @Column(name = "codigo",nullable = false,unique = true)
     private  String codigo;
 
     @ManyToOne(fetch= FetchType.LAZY)
@@ -43,9 +43,21 @@ public class Turma  {
         this.codigo = codigo;
     }
 
+    public void atualizar(String codigo, Curso curso, boolean codigoDuplicado) {
+        if (codigoDuplicado) {
+            throw new IllegalArgumentException("Já existe uma turma com o código: " + codigo);
+        }
+
+        if (codigo != null && !codigo.isBlank()) {
+            this.codigo = codigo;
+        }
+
+        if (curso != null) {
+            this.curso = curso;
+        }
+    }
 
     public void adicionarAlocacao(Alocacao alocacao) {
-
         this.alocacoes.add(alocacao);
 
 

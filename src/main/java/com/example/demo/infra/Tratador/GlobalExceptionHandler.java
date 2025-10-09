@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDetails> handleValidationErrors(
             MethodArgumentNotValidException ex,
+
             HttpServletRequest request
     ) {
         // Coleta e formata as mensagens de erro de validação
@@ -62,7 +63,8 @@ public class GlobalExceptionHandler {
             EmailInvalidoException.class,
             HorarioInicioMaiorHorarioFinalExcpetion.class,
             RegrasDeNegocioException.class ,
-            HorarioForaDoTurnoException.class
+            HorarioForaDoTurnoException.class,
+            IllegalArgumentException.class
     })
     public ResponseEntity<ErrorDetails> handleBadRequestExceptions(
             RuntimeException ex,
@@ -104,7 +106,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             EntityNotFoundException.class, // Padrão do JPA
-            DisciplinaNotFoundException.class // Sua exceção específica
     })
     public ResponseEntity<ErrorDetails> handleNotFoundExceptions(
             RuntimeException ex,
@@ -139,7 +140,7 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    // Adicione este método ao seu ControllerAdvice
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorDetails> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException ex,

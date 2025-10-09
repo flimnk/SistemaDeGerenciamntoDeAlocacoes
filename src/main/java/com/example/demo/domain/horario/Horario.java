@@ -1,10 +1,8 @@
 package com.example.demo.domain.horario;
 
 import com.example.demo.domain.alocacao.Alocacao;
-import com.example.demo.domain.professor.Professor;
 import com.example.demo.domain.professorHorario.ProfessorHorario;
-import com.example.demo.infra.Exception.HorarioForaDoTurnoException;
-import com.example.demo.service.validation.HorarioValidator;
+import com.example.demo.domain.horario.validation.HorarioValidator;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,10 +19,10 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 public class Horario {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private  Long id;
+
 
     @Column(name = "dia_semana", nullable = false)
     @Enumerated(EnumType.STRING)
