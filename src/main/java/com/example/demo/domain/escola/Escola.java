@@ -25,7 +25,7 @@ public class Escola implements Ativavel {
     @Column(name="ativo",nullable = false)
     private boolean ativo = true;
 
-    @Column(name =" categoria" ,nullable = false, length = 50)
+    @Column(name ="categoria" ,nullable = false, length = 50,unique = true)
     @Enumerated(EnumType.STRING)
     private CategoriaEscola categoriaEscola;
 

@@ -1,13 +1,9 @@
 package com.example.demo.domain.escola.dto;
 
 import com.example.demo.domain.escola.CategoriaEscola;
+import jakarta.validation.constraints.NotNull;
 
-import java.util.Set;
-
-public record EscolaResponseSimples(
-        Long id,
+public record EscolaUpdateRequest(
         CategoriaEscola categoriaEscola
 
-) {
-
-}
+) {}

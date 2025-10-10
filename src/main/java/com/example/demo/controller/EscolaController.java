@@ -1,0 +1,70 @@
+package com.example.demo.controller;
+
+import com.example.demo.domain.escola.dto.EscolaCreateRequest;
+import com.example.demo.domain.escola.dto.EscolaResponse;
+import com.example.demo.domain.escola.dto.EscolaUpdateRequest;
+import com.example.demo.service.EscolaService;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+
+@RestController
+@RequestMapping("api/escolas")
+public class EscolaController {
+
+    private final EscolaService escolaService;
+
+    public EscolaController(EscolaService escolaService) {
+        this.escolaService = escolaService;
+    }
+
+
+    @PostMapping
+    public ResponseEntity<EscolaResponse> criar(
+            @RequestBody @Valid EscolaCreateRequest request
+
+    ) {
+        EscolaResponse response = escolaService.criar(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+
+    @GetMapping
+    public ResponseEntity<Page<EscolaResponse>> buscarTodos(
+            @PageableDefault(size = 10, sort = {"categoriaEscola"}) Pageable pageable
+    ) {
+        Page<EscolaResponse> page = escolaService.buscarTodos(pageable);
+        return ResponseEntity.ok(page);
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EscolaResponse>  buscarTodos(@PathVariable Long id) {
+        EscolaResponse response = escolaService.buscarPorId(id);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<EscolaResponse> atualizar(
+            @PathVariable Long id,
+            @RequestBody @Valid EscolaUpdateRequest request
+    ) {
+        EscolaResponse response = escolaService.atualizar(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        escolaService.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+}

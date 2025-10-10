@@ -7,6 +7,7 @@ import com.example.demo.domain.curso.dto.CursoUpdateRequest;
 import com.example.demo.domain.escola.Escola;
 
 import com.example.demo.infra.Exception.CursoJaExisteException;
+import com.example.demo.infra.Exception.EscolaInativaExeption;
 import com.example.demo.infra.Exception.TurmaJaExisteException;
 import com.example.demo.repository.CursoRepository;
 import com.example.demo.repository.EscolaRepository;
@@ -32,7 +33,7 @@ public class CursoService {
         Escola escola = escolaRepository.findById(request.escolaId())
                 .orElseThrow(() -> new EntityNotFoundException("Escola não encontrada com ID: " + request.escolaId()));
 
-
+        if(!escola.isAtivo()) throw new EscolaInativaExeption("A escola "+ escola.getCategoriaEscola() +" esta inativa");
         if(cursoRepository.existsByNome(request.nome())) throw new CursoJaExisteException("Ja existe uma disciplina com esse nome" + request.nome());
 
         Curso curso = new Curso(escola, request.nome(), request.duracaoEmSemestre());
@@ -60,10 +61,13 @@ public class CursoService {
         Curso curso = cursoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado com ID: " + id));
 
-        if (request.nome() != null && !request.nome().isBlank()) {
-            if(cursoRepository.existsByNome(request.nome())) throw new CursoJaExisteException("Ja existe uma disciplina com esse nome" + request.nome());
-        }
 
+        if (request.nome() != null && !request.nome().isBlank()) {
+            if (!request.nome().equalsIgnoreCase(curso.getNome()) && cursoRepository.existsByNome(request.nome())) {
+                throw new CursoJaExisteException("Já existe um curso com o nome: " + request.nome());
+            }
+            curso.setNome(request.nome());
+        }
         if (request.duracaoEmSemestre() != null) {
             curso.setDuracaoEmSemestre(request.duracaoEmSemestre());
         }
@@ -71,14 +75,14 @@ public class CursoService {
         if (request.escolaId() != null && !request.escolaId().equals(curso.getEscola().getId())) {
             Escola novaEscola = escolaRepository.findById(request.escolaId())
                     .orElseThrow(() -> new EntityNotFoundException("Nova Escola não encontrada com ID: " + request.escolaId()));
-            curso.setEscola(novaEscola);
-            novaEscola.removerCurso(curso);
+
+            if(!novaEscola.isAtivo()) throw new EscolaInativaExeption("A escola "+ novaEscola.getCategoriaEscola() +" esta inativa");
+
+            curso.getEscola().removerCurso(curso);
             novaEscola.adicionarCurso(curso);
 
 
         }
-
-
 
         curso = cursoRepository.save(curso);
         return new CursoResponse(curso);

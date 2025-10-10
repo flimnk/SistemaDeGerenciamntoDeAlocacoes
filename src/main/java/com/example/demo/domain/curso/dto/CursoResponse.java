@@ -14,7 +14,7 @@ public record CursoResponse(
             curso.getId(),
             curso.getNome(),
             curso.getDuracaoEmSemestre(),
-            new EscolaResponseSimples(curso.getEscola().getId(), curso.getEscola().get)
+            new EscolaResponseSimples(curso.getEscola().getId(), curso.getEscola().getCategoriaEscola())
         );
     }
 }
