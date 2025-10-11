@@ -65,4 +65,24 @@ public class ProfessorController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/ativos")
+    public ResponseEntity<List<ProfessorResponse>> buscarTodosAtivos() {
+        List<ProfessorResponse> professoresAtivos = professorService.buscarTodosAtivos();
+        return ResponseEntity.ok(professoresAtivos);
+    }
+
+
+    @PutMapping("/{id}/ativar")
+    public ResponseEntity<Void> ativarProfessor(@PathVariable Long id) {
+        professorService.ativarProfessor(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @PutMapping("/{id}/desativar")
+    public ResponseEntity<Void> desativarProfessor(@PathVariable Long id) {
+        professorService.desativarProfessor(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

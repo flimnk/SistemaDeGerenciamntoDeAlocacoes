@@ -4,6 +4,7 @@ package com.example.demo.domain.professor.dto;
 
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Email;
 
@@ -23,6 +24,6 @@ public record ProfessorCreateRequest(
         @NotBlank(message = "O registro é obrigatório")
         String registro,
 
-        @NotBlank(message = "O id das escolas é obrigatório")
+        @NotEmpty(message = "O id das escolas é obrigatório")
         Set<Long>escolasIds
 ) {}

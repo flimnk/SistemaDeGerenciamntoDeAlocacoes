@@ -7,6 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Repository
 public interface ProfessorRepository extends JpaRepository<Professor, Long> {
     boolean existsByCpf(Cpf cpf);
@@ -14,4 +17,7 @@ public interface ProfessorRepository extends JpaRepository<Professor, Long> {
     boolean existsByRegistro(String registro);
 
     boolean existsByEmailAndIdNot(Email email, Long id);
+
+    List<Professor> findAllByAtivoTrue();
+
 }

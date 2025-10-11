@@ -7,6 +7,7 @@ import com.example.demo.domain.formacao.Formacao;
 
 import com.example.demo.domain.vo.Cpf;
 import com.example.demo.domain.vo.Email;
+import com.example.demo.infra.Exception.ProfessorInativoException;
 import com.example.demo.infra.Exception.ProfessorJaExisteException;
 import com.example.demo.repository.EscolaRepository;
 import com.example.demo.repository.FormacaoRepository;
@@ -59,6 +60,7 @@ public class ProfessorService {
         Professor professor = professorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Professor não encontrado com id: " + id));
 
+        if(!professor.isAtivo()) throw  new ProfessorInativoException("Professor inativo com id: " + professor.getId());
 
         if (request.email() != null &&
                 professorRepository.existsByEmailAndIdNot(new Email(request.email()), id)) {
@@ -85,6 +87,11 @@ public class ProfessorService {
 
         return new ProfessorResponse(professor);
     }
+    public List<ProfessorResponse> buscarTodosAtivos() {
+        return professorRepository.findAllByAtivoTrue().stream()
+                .map(ProfessorResponse::new)
+                .collect(Collectors.toList());
+    }
 
 
     @Transactional
@@ -106,6 +113,22 @@ public class ProfessorService {
     public List<ProfessorResponse>buscarTodos() {
         return professorRepository.findAll().stream().map(ProfessorResponse::new)
                 .collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    public void ativarProfessor(Long id ){
+        var professor = professorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(" Professor não encontrado com id: " + id));
+        professor.ativar();
+        professorRepository.save(professor);
+    }
+    @Transactional
+    public void desativarProfessor(Long id ){
+        var professor = professorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(" Professor não encontrado com id: " + id));
+        professor.desativar();
+        professorRepository.save(professor);
     }
 
 

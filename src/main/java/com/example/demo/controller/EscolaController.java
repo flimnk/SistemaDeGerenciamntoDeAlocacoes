@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
-@RequestMapping("api/escolas")
+@RequestMapping("/api/escolas")
 public class EscolaController {
 
     private final EscolaService escolaService;
@@ -65,6 +66,26 @@ public class EscolaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         escolaService.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/ativas")
+    public ResponseEntity<List<EscolaResponse>> buscarAtivas() {
+        List<EscolaResponse> escolas = escolaService.buscarAtivas();
+        return ResponseEntity.ok(escolas);
+    }
+
+
+    @PutMapping("/{id}/ativar")
+    public ResponseEntity<Void> ativar(@PathVariable Long id) {
+        escolaService.ativar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 🔹 Desativar
+    @PutMapping("/{id}/desativar")
+    public ResponseEntity<Void> desativar(@PathVariable Long id) {
+        escolaService.desativar(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -83,15 +83,5 @@ public class Escola implements Ativavel {
 
 
 
-    public void adicionarProfessor(Professor professor) {
-        this.professores.add(professor);
-        professor.getEscolas().add(this);
-    }
-
-    public void removerProfessor(Professor professor) {
-        this.professores.remove(professor);
-        professor.getEscolas().remove(this);
-    }
-
 
 }

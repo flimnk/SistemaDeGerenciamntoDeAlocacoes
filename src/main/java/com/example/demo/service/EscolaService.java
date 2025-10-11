@@ -1,10 +1,12 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.escola.CategoriaEscola;
 import com.example.demo.domain.escola.Escola;
 import com.example.demo.domain.escola.dto.EscolaCreateRequest;
 import com.example.demo.domain.escola.dto.EscolaResponse;
 import com.example.demo.domain.escola.dto.EscolaUpdateRequest;
 
+import com.example.demo.infra.Exception.EscolaInativaExeption;
 import com.example.demo.infra.Exception.EscolaJaExisteExcption;
 import com.example.demo.repository.EscolaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -12,6 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EscolaService {
@@ -24,7 +29,7 @@ public class EscolaService {
 
     @Transactional
     public EscolaResponse criar(EscolaCreateRequest request) {
-        if(escolaRepository.existsByCategoriaEscola()) throw  new EscolaJaExisteExcption("Escola com a categoria ja existe: " + request.categoriaEscola());
+        if(escolaRepository.existsByCategoriaEscola(request.categoriaEscola())) throw  new EscolaJaExisteExcption("Escola com a categoria ja existe: " + request.categoriaEscola());
         Escola escola = new Escola(request.categoriaEscola());
         escola = escolaRepository.save(escola);
         return new EscolaResponse(escola);
@@ -44,13 +49,15 @@ public class EscolaService {
     }
 
     @Transactional
-    public EscolaResponse atualizar(Long id, EscolaUpdateRequest dto) {
+    public EscolaResponse atualizar(Long id, EscolaUpdateRequest request) {
         Escola escola = escolaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Escola não encontrada com ID: " + id));
 
+        if(!escola.isAtivo()) throw  new EscolaInativaExeption("Escola inativa com ID: " + id);
 
-        if (dto.categoriaEscola() != null && !escolaRepository.existsByCategoriaEscola()) {
-            escola.setCategoriaEscola(dto.categoriaEscola());
+
+        if (request.categoriaEscola() != null && !escolaRepository.existsByCategoriaEscola( request.categoriaEscola())) {
+            escola.setCategoriaEscola(request.categoriaEscola());
         }
 
 
@@ -66,5 +73,29 @@ public class EscolaService {
             throw new EntityNotFoundException("Escola não encontrada com ID: " + id);
         }
         escolaRepository.deleteById(id);
+    }
+    // 🔹 Buscar todas as ativas (lista simples)
+    @Transactional(readOnly = true)
+    public List<EscolaResponse> buscarAtivas() {
+        return escolaRepository.findAllByAtivoTrue().stream()
+                .map(EscolaResponse::new)
+                .collect(Collectors.toList());
+    }
+    // 🔹 Desativar
+    @Transactional
+    public void desativar(Long id) {
+        Escola escola = escolaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Escola não encontrada com ID: " + id));
+        escola.desativar();
+        escolaRepository.save(escola);
+    }
+
+    // 🔹 Ativar
+    @Transactional
+    public void ativar(Long id) {
+        Escola escola = escolaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Escola não encontrada com ID: " + id));
+        escola.ativar();
+        escolaRepository.save(escola);
     }
 }
