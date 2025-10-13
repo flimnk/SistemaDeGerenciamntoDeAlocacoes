@@ -5,6 +5,7 @@ import com.example.demo.domain.interfaces.Ativavel;
 import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 @NoArgsConstructor
 @Table (name = "disciplina")
+@Where(clause = "ativo = true")
 public class Disciplina implements Ativavel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

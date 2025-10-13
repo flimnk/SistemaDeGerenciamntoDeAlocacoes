@@ -2,9 +2,11 @@ package com.example.demo.domain.curso;
 
 import com.example.demo.domain.Matriz.Matriz;
 import com.example.demo.domain.escola.Escola;
+import com.example.demo.domain.interfaces.Ativavel;
 import com.example.demo.domain.turma.Turma;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;
@@ -12,8 +14,10 @@ import java.util.Set;
 
 @Entity
 @Table(name = "curso")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+
 public class Curso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,10 +30,11 @@ public class Curso {
     @JoinColumn(name = "escola_id")
     private Escola escola;
 
+
     @Column(name="duracao_em_semestre", nullable = false )
     private Integer duracaoEmSemestre;
 
-    @OneToMany(mappedBy = "curso", fetch =  FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "curso", fetch =  FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Matriz> matrizes  =  new HashSet<>();
 
 
@@ -63,6 +68,18 @@ public class Curso {
         if (matriz.getCurso() != this) {
             matriz.setCurso(this);
         }
+    }
+
+
+    @Override
+    public String toString() {
+        return "Curso{" +
+                "id=" + id +
+                ", escola=" + escola +
+                ", duracaoEmSemestre=" + duracaoEmSemestre +
+                ", matrizes=" + matrizes +
+                ", nome='" + nome + '\'' +
+                '}';
     }
 
     public void removerMatriz(Matriz matriz) {

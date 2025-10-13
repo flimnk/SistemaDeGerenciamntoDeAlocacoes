@@ -5,10 +5,13 @@ import com.example.demo.domain.professor.Professor;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.io.Serializable; // Usado para a chave composta
+
+import java.util.Optional;
 
 @Entity
-@Table(name = "professor_horario")
+@Table(name = "professor_horario",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"professor_id", "horario_id"})
+)
 @Data
 @NoArgsConstructor
 
@@ -27,13 +30,25 @@ public class ProfessorHorario {
     @ManyToOne
     @JoinColumn(name = "horario_id")
     private Horario horario;
-    
+
 
     @Column(name = "is_disponivel", nullable = false)
-    private boolean disponivel = true; 
+    private boolean disponivel = true;
 
-    public  void indiponibilizar(){
-        this.disponivel = false;
+    public ProfessorHorario( Horario horario, Professor professor) {
+        if(professor == null) throw  new IllegalArgumentException("ProfessorHorario deve  ter um professor");
+        if(horario == null) throw  new IllegalArgumentException("ProfessorHorario deve possuir um  um horário");
+        this.professor = professor;
+        this.setHorario(horario);
+        this.disponivel = true;
     }
 
+    public  boolean isDisponivel (){
+        return  this.disponivel;
+    }
+
+
+    public  void indisponibilizar(){
+        this.disponivel = false;
+    }
 }

@@ -2,41 +2,49 @@ package com.example.demo.domain.Matriz;
 
 import com.example.demo.domain.curso.Curso;
 import com.example.demo.domain.disciplina.Disciplina;
+
 import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
 
 import com.example.demo.domain.matriz_disciplina.Obrigatoriedade;
 import jakarta.persistence.*;
-import lombok.Data;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 
 import java.time.Year;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@Table(name = "matriz")
-public class Matriz {
+
+@Table(
+        name = "matriz",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"curso_id","ano_vigencia"})
+)
+public class Matriz  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
 
 
-    @Column(name = "nome", nullable = false)
+    @Column(name = "nome", nullable = false,unique = true)
     private  String nome;
 
     @Column(name = "ano_vigencia", nullable = false)
     private Year anoVigencia;
 
 
+
     @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "curso_id")
     private Curso curso;
 
-    @OneToMany(mappedBy = "matriz", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "matriz", cascade = CascadeType.ALL)
     private Set<MatrizDisciplina> disciplinas = new HashSet<>();
 
 
@@ -44,12 +52,12 @@ public class Matriz {
         if(curso == null) throw  new IllegalArgumentException("Matriz deve estar em um curso");
         if(anoVigencia == null ) throw  new IllegalArgumentException("Matriz deve estar em um curso");
 
-        this.curso = curso;
+        curso.adicionarMatriz(this);
         this.anoVigencia = anoVigencia;
         this.nome = gerarNameMatriz(curso.getNome(),anoVigencia);
     }
 
-    public String gerarNameMatriz(String nomeCurso , Year anoVigencia) {
+    public  static String gerarNameMatriz(String nomeCurso , Year anoVigencia) {
         return  "%s%s".formatted(nomeCurso, anoVigencia.getValue());
 
     }
@@ -62,5 +70,17 @@ public class Matriz {
     public void removerDisciplina(Disciplina disciplina) {
         disciplinas.removeIf(md -> md.getDisciplina().equals(disciplina));
         disciplina.getMatrizes().removeIf(md -> md.getMatriz().equals(this));
+    }
+
+
+
+
+    @Override
+    public String toString() {
+        return "Matriz{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", anoVigencia=" + anoVigencia +
+                '}';
     }
 }

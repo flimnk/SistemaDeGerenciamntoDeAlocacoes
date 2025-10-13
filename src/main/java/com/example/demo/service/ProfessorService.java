@@ -7,6 +7,7 @@ import com.example.demo.domain.formacao.Formacao;
 
 import com.example.demo.domain.vo.Cpf;
 import com.example.demo.domain.vo.Email;
+import com.example.demo.infra.Exception.EscolaInativaExeption;
 import com.example.demo.infra.Exception.ProfessorInativoException;
 import com.example.demo.infra.Exception.ProfessorJaExisteException;
 import com.example.demo.repository.EscolaRepository;
@@ -45,10 +46,12 @@ public class ProfessorService {
                 request.registro()
 
         );
-       var escolas =  request.escolasIds().stream()
-               .map(escolaId -> escolaRepository
-                       .findById(escolaId).orElseThrow(()-> new EntityNotFoundException("Escola não encontrada com id: " + escolaId)));
-       escolas.forEach(professor::adicionarEscola);
+       var escolas = buscarEscolasAtivasOuFalhar(request.escolasIds());
+
+        escolas.forEach(escola -> {
+            professor.adicionarEscola(escola);
+            escola.adicionarProfessor(professor);
+        });
 
 
         professorRepository.save(professor);
@@ -155,7 +158,7 @@ public class ProfessorService {
                             .orElseThrow(() -> new EntityNotFoundException("Escola não encontrada com id: " + id));
 
                     if (!escola.isAtivo()) {
-                        throw new IllegalStateException("Escola com id " + id + " está inativa");
+                        throw new EscolaInativaExeption("Escola com id " + id + " está inativa");
                     }
 
                     return escola;

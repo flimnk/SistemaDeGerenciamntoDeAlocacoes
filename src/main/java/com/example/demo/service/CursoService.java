@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+
 public class CursoService {
 
     private final CursoRepository cursoRepository;
@@ -42,10 +43,10 @@ public class CursoService {
 
         return new CursoResponse(curso);
     }
-
     @Transactional(readOnly = true)
     public Page<CursoResponse> buscarTodos(Pageable pageable) {
-        return cursoRepository.findAll(pageable)
+        // Busca apenas cursos cuja escola está ativa
+        return cursoRepository.findByEscola_Ativo(true, pageable)
                 .map(CursoResponse::new);
     }
 
@@ -53,6 +54,13 @@ public class CursoService {
     public CursoResponse buscarPorId(Long id) {
         Curso curso = cursoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado com ID: " + id));
+
+
+        if (!curso.getEscola().isAtivo()) {
+            throw new EscolaInativaExeption("O curso está ligado a uma escola inativa.");
+
+        }
+
         return new CursoResponse(curso);
     }
 
@@ -87,12 +95,15 @@ public class CursoService {
         curso = cursoRepository.save(curso);
         return new CursoResponse(curso);
     }
-
     @Transactional
     public void deletar(Long id) {
-        if (!cursoRepository.existsById(id)) {
-            throw new EntityNotFoundException("Curso não encontrado com ID: " + id);
+        Curso curso = cursoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado com ID: " + id));
+
+        if (!curso.getEscola().isAtivo()) {
+            throw new EscolaInativaExeption("Não é possível deletar um curso ligado a uma escola inativa.");
         }
-        cursoRepository.deleteById(id);
+
+        cursoRepository.delete(curso);
     }
 }

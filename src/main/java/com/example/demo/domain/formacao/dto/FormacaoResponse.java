@@ -3,6 +3,7 @@ package com.example.demo.domain.formacao.dto;
 import com.example.demo.domain.formacao.CategoriaDaTitulacao;
 import com.example.demo.domain.formacao.Formacao;
 import com.example.demo.domain.professor.dto.ProfessorResponse;
+import com.example.demo.domain.professor.dto.ProfessorResponseSimples;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,7 @@ public record FormacaoResponse(
         LocalDate anoConclusao,
         String nomeInstituicao,
         CategoriaDaTitulacao categoria,
-        ProfessorResponse professorResponse
+        ProfessorResponseSimples professorResponse
 ) {
     public FormacaoResponse(Formacao formacao) {
         this(formacao.getId(),
@@ -20,6 +21,6 @@ public record FormacaoResponse(
              formacao.getAnoConclusao(),
              formacao.getNomeInstituicao(),
              formacao.getCategoria(),
-             new ProfessorResponse(formacao.getProfessor())   );
+             new ProfessorResponseSimples(formacao.getProfessor())   );
     }
 }

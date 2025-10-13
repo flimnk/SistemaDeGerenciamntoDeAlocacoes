@@ -3,7 +3,6 @@ package com.example.demo.domain.professor;
 import com.example.demo.domain.alocacao.Alocacao;
 import com.example.demo.domain.escola.Escola;
 import com.example.demo.domain.formacao.Formacao; // Importe a classe Formacao
-import com.example.demo.domain.horario.Horario;
 import com.example.demo.domain.interfaces.Ativavel;
 
 import com.example.demo.domain.pessoa.Pessoa;
@@ -19,10 +18,10 @@ import java.util.Set;
 
 
 @EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
-@ToString
 @Table(name = "professor")
 
 public class Professor extends Pessoa implements Ativavel {
@@ -72,11 +71,10 @@ public class Professor extends Pessoa implements Ativavel {
         this.registro = registro;
         this.ativo = true;
     }
-
     public void adicionarEscola(Escola escola) {
-        this.escolas.add(escola);
-        if (!escola.getProfessores().contains(this)) {
-            escola.getProfessores().add(this);
+        if (!this.escolas.contains(escola)) {
+            this.escolas.add(escola);
+
         }
     }
 

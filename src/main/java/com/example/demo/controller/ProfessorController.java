@@ -28,8 +28,7 @@ public class ProfessorController {
 
     @PostMapping
     public ResponseEntity<ProfessorResponse> criar(
-            @RequestBody @Valid ProfessorCreateRequest request,
-            UriComponentsBuilder uriBuilder
+            @RequestBody @Valid ProfessorCreateRequest request
     ) {
         ProfessorResponse response = professorService.criar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

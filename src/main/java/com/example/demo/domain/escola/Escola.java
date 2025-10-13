@@ -8,13 +8,16 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "escola")
-@Data
+@Getter
+@Setter
+
 @NoArgsConstructor
 public class Escola implements Ativavel {
 
@@ -63,6 +66,11 @@ public class Escola implements Ativavel {
 
         if (curso.getEscola() != null && curso.getEscola().equals(this)) {
             curso.setEscola(null);
+        }
+    }
+    public void adicionarProfessor(Professor professor) {
+        if (!this.professores.contains(professor)) {
+            this.professores.add(professor);
         }
     }
 

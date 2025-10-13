@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "prioridade")
+@Table(name = "prioridade",
+    uniqueConstraints = @UniqueConstraint(columnNames =
+            {"matriz_disciplina_id","professor_id"})
+)
 public class Prioridade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

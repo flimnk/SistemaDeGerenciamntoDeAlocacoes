@@ -3,12 +3,14 @@ package com.example.demo.domain.matriz_disciplina;
 import com.example.demo.domain.Matriz.Matriz;
 import com.example.demo.domain.alocacao.Alocacao;
 import com.example.demo.domain.disciplina.Disciplina;
+import com.example.demo.domain.interfaces.Ativavel;
 import com.example.demo.domain.prioridade.Prioridade;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +18,11 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "matriz_disciplina")
+
+@Table(
+        name = "matriz_disciplina",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"matriz_id", "disciplina_id"})
+)
 public class MatrizDisciplina {
 
     @Id
@@ -37,6 +43,10 @@ public class MatrizDisciplina {
 
     @Column(name = "semestre", nullable = false)
     private int semestre;
+
+    @Column(name="ativo",nullable = false)
+    private boolean ativo = true;
+
 
     @OneToMany(mappedBy = "matrizDisciplina", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Alocacao> alocacoes = new HashSet<>();
@@ -99,4 +109,8 @@ public class MatrizDisciplina {
             alocacao.setMatrizDisciplina(null);
         }
     }
+
+
+
+
 }
