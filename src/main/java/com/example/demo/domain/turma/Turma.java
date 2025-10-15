@@ -2,13 +2,9 @@ package com.example.demo.domain.turma;
 
 import com.example.demo.domain.alocacao.Alocacao;
 import com.example.demo.domain.curso.Curso;
-import com.example.demo.domain.interfaces.Ativavel;
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -2,10 +2,11 @@ package com.example.demo.service;
 
 import com.example.demo.domain.disciplina.Disciplina;
 import com.example.demo.domain.Matriz.Matriz;
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
-import com.example.demo.domain.matriz_disciplina.dto.MatrizDisciplinaCreateRequest;
-import com.example.demo.domain.matriz_disciplina.dto.MatrizDisciplinaResponse;
-import com.example.demo.domain.matriz_disciplina.dto.MatrizDisciplinaUpdateRequest;
+import com.example.demo.domain.matrizDisciplina.MatrizDisciplina;
+import com.example.demo.domain.matrizDisciplina.dto.MatrizDisciplinaCreateRequest;
+import com.example.demo.domain.matrizDisciplina.dto.MatrizDisciplinaResponse;
+import com.example.demo.domain.matrizDisciplina.dto.MatrizDisciplinaUpdateRequest;
+import com.example.demo.infra.Exception.DisciplinaInativaException;
 import com.example.demo.infra.Exception.DisclinaJaEstaAlocadaNessaMatiz;
 import com.example.demo.infra.Exception.EscolaInativaExeption;
 import com.example.demo.repository.DisciplinaRepository;
@@ -88,7 +89,7 @@ public class MatrizDisciplinaService {
     }
     @Transactional(readOnly = true)
     public List<MatrizDisciplinaResponse> buscarTodos() {
-        return mdRepository.findByMatriz_Curso_Escola_Ativo(true)
+        return mdRepository.findByMatriz_Curso_Escola_AtivoTrueAndDisciplina_AtivoTrue()
                 .stream()
                 .map(MatrizDisciplinaResponse::new)
                 .toList();
@@ -133,9 +134,10 @@ public class MatrizDisciplinaService {
         return matriz;
     }
     private Disciplina buscarDisciplina( Long disciplinaId) {
-        return disciplinaRepository.findById(disciplinaId)
+        var disciplina =  disciplinaRepository.findById(disciplinaId)
                 .orElseThrow(() -> new EntityNotFoundException("Disciplina não encontrada com id: " + disciplinaId));
-
+        if(!disciplina.isAtivo()) throw new DisciplinaInativaException("Disciplina inativa com id: " + disciplina.getId());
+        return  disciplina;
     }
 
 }

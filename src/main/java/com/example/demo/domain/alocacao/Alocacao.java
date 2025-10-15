@@ -1,7 +1,7 @@
 package com.example.demo.domain.alocacao;
 
 import com.example.demo.domain.horario.Horario;
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
+import com.example.demo.domain.matrizDisciplina.MatrizDisciplina;
 import com.example.demo.domain.professor.Professor;
 import com.example.demo.domain.turma.Turma;
 import jakarta.persistence.*;
@@ -11,7 +11,11 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @NoArgsConstructor
-@Table (name = "alocacao")
+@Table(
+        name = "alocacao",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"turma_id", "matriz_disciplina_id", "horario_id"})
+)
+
 public class Alocacao {
 
     @Id

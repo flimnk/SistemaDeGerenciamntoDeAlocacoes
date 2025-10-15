@@ -7,17 +7,14 @@ import com.example.demo.domain.alocacao.dto.AlocacaoCreateRequest;
 import com.example.demo.domain.alocacao.dto.AlocacaoResponse;
 import com.example.demo.domain.alocacao.dto.AlocacaoUpdateRequest; // NOVO
 import com.example.demo.domain.horario.Horario;
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
+import com.example.demo.domain.matrizDisciplina.MatrizDisciplina;
 import com.example.demo.domain.professor.Professor;
 
 import com.example.demo.domain.professorHorario.ProfessorHorario;
 import com.example.demo.domain.turma.Turma;
 
-import com.example.demo.infra.Exception.AlocacaoJaExisteException;
-import com.example.demo.infra.Exception.EscolaInativaExeption;
+import com.example.demo.infra.Exception.*;
 
-import com.example.demo.infra.Exception.ProfessorInativoException;
-import com.example.demo.infra.Exception.ProfessorIndisponivelException;
 import com.example.demo.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +34,7 @@ public class AlocacaoService {
     private final TurmaRepository turmaRepository;
     private final ProfessorHorarioRepository professorHorarioRepository;
 
-
+    private static final int LIMITE_MAXIMO_ALOCACOES = 5;
 
     @Transactional
     public AlocacaoResponse criar(AlocacaoCreateRequest request) {
@@ -91,8 +87,8 @@ public class AlocacaoService {
         Horario novoHorario = alocacao.getHorario();
         Turma novaTurma = alocacao.getTurma();
         boolean houveMudancaRelevante = false;
+        boolean mudouDisciplina = false;
 
-        // 1. Atualizar Professor
         if (request.professorId() != null && !request.professorId().equals(novoProfessor.getId())) {
             novoProfessor = buscarProfessorEValidarAtividade(request.professorId());
             alocacao.setProfessor(novoProfessor);
@@ -103,6 +99,7 @@ public class AlocacaoService {
         if (request.matrizDisciplinaId() != null && !request.matrizDisciplinaId().equals(novaMd.getId())) {
             novaMd = buscarMatrizDisciplinaEValidarAtividadeEscola(request.matrizDisciplinaId());
             alocacao.setMatrizDisciplina(novaMd);
+            mudouDisciplina = true;
         }
 
 
@@ -117,8 +114,10 @@ public class AlocacaoService {
             novaTurma = buscarTurmaEValidarAtividadeEscola(request.turmaId());
             alocacao.setTurma(novaTurma);
         }
-
-        if (houveMudancaRelevante) {
+        if (mudouDisciplina) {
+            verificarLimiteAlocacaoDisciplina(alocacao.getMatrizDisciplina()); // <-- INTEGRADO AQUI
+        }
+        if (houveMudancaRelevante || mudouDisciplina) {
             verificarDisponibilidadeProfessor(alocacao.getProfessor(), alocacao.getHorario());
             verificarConflitosDeAlocacao(alocacao.getProfessor(), alocacao.getHorario(), alocacao.getTurma(), id);
         }
@@ -164,6 +163,7 @@ public class AlocacaoService {
                     "O Professor está registrado como indisponível (ProfessorHorario.disponivel=false) para o horário."
             );
         }
+        ph.indisponibilizar();
     }
 
     // VALIDAÇÃO 2: Conflitos na Alocação (Duplicidade)
@@ -224,5 +224,16 @@ public class AlocacaoService {
     private Horario buscarHorario(Long id) {
         return horarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Horário não encontrado com ID: " + id));
+    }
+    private void verificarLimiteAlocacaoDisciplina(MatrizDisciplina md) {
+        long alocacoesExistentes = alocacaoRepository.countByMatrizDisciplina(md);
+
+        if (alocacoesExistentes >= LIMITE_MAXIMO_ALOCACOES) {
+            throw new LimiteAlocacaoExcedidoException(
+                    "Conflito: A Disciplina (" + md.getDisciplina().getNome() +
+                            ") na Matriz (" + md.getMatriz().getNome() +
+                            ") já atingiu o limite máximo de " + LIMITE_MAXIMO_ALOCACOES + " alocações."
+            );
+        }
     }
 }

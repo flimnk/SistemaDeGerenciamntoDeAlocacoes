@@ -1,16 +1,13 @@
-package com.example.demo.domain.matriz_disciplina;
+package com.example.demo.domain.matrizDisciplina;
 
 import com.example.demo.domain.Matriz.Matriz;
 import com.example.demo.domain.alocacao.Alocacao;
 import com.example.demo.domain.disciplina.Disciplina;
-import com.example.demo.domain.interfaces.Ativavel;
 import com.example.demo.domain.prioridade.Prioridade;
+import com.example.demo.infra.Exception.SemestreForaDoIntervaloExepition;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Where;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -74,10 +71,16 @@ public class MatrizDisciplina {
         this.matriz = matriz;
         this.disciplina = disciplina;
         this.cargaHoraria = cargaHoraria;
-        this.semestre = semestre;
+        this.setSemestre(semestre);
         this.obrigatoria = obrigatoria;
 
 
+    }
+
+    public  void setSemestre(Integer semestre){
+        if (semestre > this.getMatriz().getCurso().getDuracaoEmSemestre())
+            throw  new SemestreForaDoIntervaloExepition("Semestre maior do que o o semestre final do curso");
+        this.semestre = semestre;
     }
 
     public void adicionarPrioridade(Prioridade prioridade) {

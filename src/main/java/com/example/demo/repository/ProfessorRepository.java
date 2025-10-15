@@ -20,4 +20,5 @@ public interface ProfessorRepository extends JpaRepository<Professor, Long> {
 
     List<Professor> findAllByAtivoTrue();
 
+    List<Professor> findByAtivoTrue();
 }

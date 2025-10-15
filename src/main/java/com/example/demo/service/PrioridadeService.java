@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.domain.escola.CategoriaEscola;
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
+import com.example.demo.domain.matrizDisciplina.MatrizDisciplina;
 import com.example.demo.domain.prioridade.Prioridade;
 import com.example.demo.domain.prioridade.dto.PrioridadeCreateRequest;
 import com.example.demo.domain.prioridade.dto.PrioridadeResponse;

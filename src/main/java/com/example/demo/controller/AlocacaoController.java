@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/alocacoes")
+@RequestMapping("/admin/alocacoes")
 @RequiredArgsConstructor
 public class AlocacaoController {
 

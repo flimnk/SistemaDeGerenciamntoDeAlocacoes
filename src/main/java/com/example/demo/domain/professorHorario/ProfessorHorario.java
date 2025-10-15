@@ -2,6 +2,7 @@ package com.example.demo.domain.professorHorario;
 
 import com.example.demo.domain.horario.Horario;
 import com.example.demo.domain.professor.Professor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class ProfessorHorario {
 
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "professor_id")
     private Professor professor;
 

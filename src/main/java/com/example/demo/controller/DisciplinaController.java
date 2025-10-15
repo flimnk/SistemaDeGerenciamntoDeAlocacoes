@@ -7,12 +7,14 @@ import com.example.demo.domain.disciplina.DisciplinaUpdateRequest;
 import com.example.demo.service.DisciplinaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid; // Use javax.validation.Valid if you're on an older Jakarta EE version
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/disciplinas")
+@RequestMapping("admin/api/disciplinas")
+@PreAuthorize("hasRole('ADMIN')")
 public class DisciplinaController {
 
     private final DisciplinaService disciplinaService;
@@ -21,6 +23,7 @@ public class DisciplinaController {
     public DisciplinaController(DisciplinaService disciplinaService) {
         this.disciplinaService = disciplinaService;
     }
+
 
     @PostMapping
     public ResponseEntity<DisciplinaResponse> criarDisciplina(@RequestBody @Valid DisciplinaCreateRequest request) {
@@ -37,6 +40,7 @@ public class DisciplinaController {
 
 
     @GetMapping("/ativas")
+
     public ResponseEntity<List<DisciplinaResponse>> buscarTodasDisciplinasAtivas() {
         List<DisciplinaResponse> disciplinasAtivas = disciplinaService.buscarTodasAtivas();
         return ResponseEntity.ok(disciplinasAtivas);
@@ -56,6 +60,7 @@ public class DisciplinaController {
         disciplinaService.deletar(id);
         return ResponseEntity.noContent().build();
     }
+
     @PatchMapping("/{id}")
     public ResponseEntity<DisciplinaResponse> atualizarDisciplina(@PathVariable Long id, @RequestBody @Valid DisciplinaUpdateRequest request) {
         DisciplinaResponse disciplinaAtualizada = disciplinaService.atualizar(id,request);

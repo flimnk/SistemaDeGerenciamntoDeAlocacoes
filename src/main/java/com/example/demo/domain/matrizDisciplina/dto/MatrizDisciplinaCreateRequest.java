@@ -1,6 +1,6 @@
-package com.example.demo.domain.matriz_disciplina.dto;
+package com.example.demo.domain.matrizDisciplina.dto;
 
-import com.example.demo.domain.matriz_disciplina.Obrigatoriedade;
+import com.example.demo.domain.matrizDisciplina.Obrigatoriedade;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 

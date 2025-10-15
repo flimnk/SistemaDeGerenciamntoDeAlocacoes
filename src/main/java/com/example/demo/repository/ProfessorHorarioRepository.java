@@ -16,4 +16,5 @@ public interface ProfessorHorarioRepository extends JpaRepository<ProfessorHorar
 
     // MUDANÇA: Usado no buscarTodosAtivos() - Filtra APENAS pelo Professor Ativo
     List<ProfessorHorario> findByProfessor_Ativo(boolean ativo);
+    List<ProfessorHorario> findByProfessor_AtivoTrueAndDisponivelTrue();
 }

@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/prioridades")
+
 @RequiredArgsConstructor
 public class PrioridadeController {
 

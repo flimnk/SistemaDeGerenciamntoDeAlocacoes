@@ -1,8 +1,7 @@
 package com.example.demo.domain.disciplina;
 
-import com.example.demo.domain.Matriz.Matriz;
 import com.example.demo.domain.interfaces.Ativavel;
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
+import com.example.demo.domain.matrizDisciplina.MatrizDisciplina;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;

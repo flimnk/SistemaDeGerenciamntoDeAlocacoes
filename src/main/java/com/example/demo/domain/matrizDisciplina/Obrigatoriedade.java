@@ -1,4 +1,4 @@
-package com.example.demo.domain.matriz_disciplina;
+package com.example.demo.domain.matrizDisciplina;
 
 public enum Obrigatoriedade {
         OPTATIVA,

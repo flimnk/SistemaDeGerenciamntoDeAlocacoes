@@ -1,6 +1,6 @@
 package com.example.demo.repository;
 
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
+import com.example.demo.domain.matrizDisciplina.MatrizDisciplina;
 import com.example.demo.domain.prioridade.Prioridade;
 import com.example.demo.domain.professor.Professor;
 import org.springframework.data.jpa.repository.JpaRepository;

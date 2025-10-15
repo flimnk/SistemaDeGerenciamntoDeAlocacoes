@@ -3,9 +3,9 @@ package com.example.demo.domain.Matriz;
 import com.example.demo.domain.curso.Curso;
 import com.example.demo.domain.disciplina.Disciplina;
 
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
+import com.example.demo.domain.matrizDisciplina.MatrizDisciplina;
 
-import com.example.demo.domain.matriz_disciplina.Obrigatoriedade;
+import com.example.demo.domain.matrizDisciplina.Obrigatoriedade;
 import jakarta.persistence.*;
 
 import lombok.Getter;

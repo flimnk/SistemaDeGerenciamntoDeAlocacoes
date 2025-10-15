@@ -2,7 +2,7 @@ package com.example.demo.domain.horario;
 
 import com.example.demo.domain.alocacao.Alocacao;
 import com.example.demo.domain.professorHorario.ProfessorHorario;
-import com.example.demo.domain.horario.validation.HorarioValidator;
+import com.example.demo.service.validation.HorarioValidator;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,8 +46,6 @@ public class Horario {
     private Set<ProfessorHorario> disponibilidades = new HashSet<>();
 
     public Horario(DiaSemana diaSemana, Turno turno, LocalTime horarioInicio, LocalTime horarioFim) {
-        HorarioValidator.validar(diaSemana, turno, horarioInicio, horarioFim);
-
         this.diaSemana = diaSemana;
         this.turno = turno;
         this.horarioInicio = horarioInicio;
@@ -60,7 +58,7 @@ public class Horario {
         Turno novoTurno = turno != null ? turno : this.turno;
         LocalTime novoInicio = horarioInicio != null ? horarioInicio : this.horarioInicio;
         LocalTime novoFim = horarioFim != null ? horarioFim : this.horarioFim;
-        HorarioValidator.validar(novoDia, novoTurno, novoInicio, novoFim);
+
 
         this.diaSemana = novoDia;
         this.turno = novoTurno;

@@ -117,6 +117,14 @@ public class ProfessorHorarioService {
                 .orElseThrow(() -> new EntityNotFoundException("Horário não encontrado com ID: " + id));
     }
 
+    @Transactional(readOnly = true)
+    public List<ProfessorHorarioResponse> buscarTodosDisponiveis() {
+        // Filtra por Professor ATIVO E ProfessorHorario.disponivel = TRUE
+        return phRepository.findByProfessor_AtivoTrueAndDisponivelTrue().stream()
+                .map(ProfessorHorarioResponse::new)
+                .toList();
+    }
+
     // MÉTODOS DE VALIDAÇÃO DE ATIVIDADE:
 
     private Professor buscarProfessorEValidarAtividade(Long id) {

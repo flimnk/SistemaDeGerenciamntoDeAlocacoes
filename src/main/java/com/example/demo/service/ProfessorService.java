@@ -1,10 +1,16 @@
 package com.example.demo.service;
 
 import com.example.demo.domain.escola.Escola;
+import com.example.demo.domain.prioridade.Prioridade;
+import com.example.demo.domain.prioridade.dto.PrioridadeResponse;
+import com.example.demo.domain.prioridade.dto.PrioridadeResponseSimples;
 import com.example.demo.domain.professor.Professor;
 import com.example.demo.domain.professor.dto.*;
 import com.example.demo.domain.formacao.Formacao;
 
+import com.example.demo.domain.professorHorario.ProfessorHorario;
+import com.example.demo.domain.professorHorario.dto.ProfessorHorarioResponse;
+import com.example.demo.domain.professorHorario.dto.ProfessorHorarioResponseSimples;
 import com.example.demo.domain.vo.Cpf;
 import com.example.demo.domain.vo.Email;
 import com.example.demo.infra.Exception.EscolaInativaExeption;
@@ -17,9 +23,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +38,7 @@ public class ProfessorService {
         this.formacaoRepository = formacaoRepository;
         this.escolaRepository = escolaRepository;
     }
+
     @Transactional
     public ProfessorResponse criar(ProfessorCreateRequest request) {
         verificaDuplicacao(new Cpf(request.cpf()),new Email(request.email()), request.registro());
@@ -133,6 +138,58 @@ public class ProfessorService {
         professor.desativar();
         professorRepository.save(professor);
     }
+    @Transactional(readOnly = true)
+    public List<ProfessorDisponibilidadeReportResponse> buscarRelatorioDisponibilidadeInteresse() {
+        try {
+            List<Professor> professores = professorRepository.findByAtivoTrue();
+            List<ProfessorDisponibilidadeReportResponse> relatorio = new ArrayList<>();
+
+
+            for (Professor professor : professores) {
+                System.out.println(">> Processando professor: " + professor.getNome());
+
+                Set<ProfessorHorario> horariosDisponiveis = professor.getDisponibilidades().stream()
+                        .filter(ProfessorHorario::isDisponivel)
+                        .collect(Collectors.toSet());
+
+                System.out.println("dwdwdw");
+                Set<Prioridade> prioridades = professor.getPrioridades();
+                System.out.println("swqsqwsqw");
+                List<ProfessorHorarioResponseSimples> horariosResponse = horariosDisponiveis.stream()
+                        .map(ProfessorHorarioResponseSimples::new)
+                        .toList();
+
+                List<PrioridadeResponseSimples> interessesResponse = prioridades.stream()
+                        .map(PrioridadeResponseSimples::new)
+                        .toList();
+
+                relatorio.add(new ProfessorDisponibilidadeReportResponse(
+                        professor.getId(),
+                        professor.getNome(),
+                        professor.getEmail() != null ? professor.getEmail().getEndereco() : "Sem e-mail",
+                        professor.isAtivo(),
+                        horariosResponse,
+                        interessesResponse
+                ));
+            }
+
+            return relatorio.stream()
+                    .sorted(Comparator.comparing(r -> {
+                        if (r.horariosDisponiveis().isEmpty() ||
+                                r.horariosDisponiveis().get(0).horarioResponse() == null ||
+                                r.horariosDisponiveis().get(0).horarioResponse().turno() == null) {
+                            return Integer.MAX_VALUE;
+                        }
+                        return r.horariosDisponiveis().get(0).horarioResponse().turno().ordinal();
+                    }))
+                    .toList();
+
+        } catch (Exception e) {
+            e.printStackTrace(); // <— vai mostrar o stacktrace completo no console
+            throw e;
+        }
+    }
+
 
 
 

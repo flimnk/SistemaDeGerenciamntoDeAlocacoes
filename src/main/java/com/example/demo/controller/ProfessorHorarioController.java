@@ -35,7 +35,7 @@ public class ProfessorHorarioController {
     // GET /professor-horarios
     @GetMapping
     public ResponseEntity<List<ProfessorHorarioResponse>> buscarTodosAtivos() {
-        List<ProfessorHorarioResponse> horarios = phService.buscarTodosAtivos();
+        List<ProfessorHorarioResponse> horarios = phService.buscarTodosDisponiveis();
 
 
         return ResponseEntity.ok(horarios);

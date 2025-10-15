@@ -1,7 +1,8 @@
 package com.example.demo.domain.prioridade;
 
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
+import com.example.demo.domain.matrizDisciplina.MatrizDisciplina;
 import com.example.demo.domain.professor.Professor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ public class Prioridade {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "professor_id", nullable = false)
+    @JsonIgnore
     private Professor professor;
 
     // Campo do Enum que define o nível de prioridade (Alta, Média, Baixa)

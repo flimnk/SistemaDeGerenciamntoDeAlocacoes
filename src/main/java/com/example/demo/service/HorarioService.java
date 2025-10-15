@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.horario.DiaSemana;
 import com.example.demo.domain.horario.Horario;
+import com.example.demo.domain.horario.Turno;
 import com.example.demo.domain.horario.dto.HorarioCreateRequest;
 
 
@@ -9,24 +11,37 @@ import com.example.demo.domain.horario.dto.HorarioUpdateRequest;
 import com.example.demo.infra.Exception.HorarioJaExisteException;
 import com.example.demo.repository.HorarioRepository;
 
+import com.example.demo.service.validation.HorarioValidator;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class HorarioService {
     private final HorarioRepository horarioRepository;
+    private final HorarioValidator horarioValidator; // Injetar o validador
 
-    public HorarioService ( HorarioRepository horarioRepository){
+    public HorarioService ( HorarioRepository horarioRepository, HorarioValidator horarioValidator){
         this.horarioRepository = horarioRepository;
+        this.horarioValidator = horarioValidator; // Atribuir
     }
 
     @Transactional
     public Horario criar(HorarioCreateRequest request) {
+;
+        // 1. Chamar a validação ANTES de verificar a duplicidade e salvar
+        horarioValidator.validar(
+                request.diaSemana(),
+                request.turno(),
+                request.horarioInicio(),
+                request.horarioFinal()
+        );
+
         if (horarioRepository.existsByDiaSemanaAndTurnoAndHorarioInicioAndHorarioFim(
                 request.diaSemana(),
                 request.turno(),
@@ -52,16 +67,23 @@ public class HorarioService {
         Horario horario = horarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Horário não encontrado com id " + id));
 
-        horario.atualizar(request.diaSemana(), request.turno(), request.horarioInicio(), request.horarioFinal());
+
+        DiaSemana novoDia = request.diaSemana() != null ? request.diaSemana() : horario.getDiaSemana();
+        Turno novoTurno = request.turno() != null ? request.turno() : horario.getTurno();
+        LocalTime novoInicio = request.horarioInicio() != null ? request.horarioInicio() : horario.getHorarioInicio();
+        LocalTime novoFim = request.horarioFinal() != null ? request.horarioFinal() : horario.getHorarioFim();
+
+
+        horarioValidator.validar(novoDia, novoTurno, novoInicio, novoFim);
 
         if ( horarioRepository.existsByDiaSemanaAndTurnoAndHorarioInicioAndHorarioFimAndIdNot(
-                request.diaSemana(),
-                request.turno(),
-                request.horarioInicio(),
-                request.horarioFinal(),
-                id)){
+                novoDia, novoTurno, novoInicio, novoFim, id)){
             throw new HorarioJaExisteException(request.toString());
         }
+        horario.atualizar(request.diaSemana(), request.turno(), request.horarioInicio(), request.horarioFinal());
+
+
+
 
         return horarioRepository.save(horario);
     }

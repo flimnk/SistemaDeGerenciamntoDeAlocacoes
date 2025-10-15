@@ -1,14 +1,10 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.Matriz.Matriz;
-import com.example.demo.domain.curso.Curso;
-import com.example.demo.domain.escola.CategoriaEscola;
 import com.example.demo.domain.escola.Escola;
 import com.example.demo.domain.escola.dto.EscolaCreateRequest;
 import com.example.demo.domain.escola.dto.EscolaResponse;
 import com.example.demo.domain.escola.dto.EscolaUpdateRequest;
 
-import com.example.demo.domain.matriz_disciplina.MatrizDisciplina;
 import com.example.demo.infra.Exception.EscolaInativaExeption;
 import com.example.demo.infra.Exception.EscolaJaExisteExcption;
 import com.example.demo.repository.EscolaRepository;
@@ -18,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

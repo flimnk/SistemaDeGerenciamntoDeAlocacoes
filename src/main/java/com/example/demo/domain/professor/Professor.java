@@ -30,6 +30,8 @@ public class Professor extends Pessoa implements Ativavel {
     @Column(name ="registro",nullable = false, unique = true)
     private String registro;
 
+
+
     @OneToOne(mappedBy = "professor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Formacao formacao;
 
@@ -52,6 +54,8 @@ public class Professor extends Pessoa implements Ativavel {
     @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Prioridade> prioridades = new HashSet<>();
 
+
+
     @Column(name = "is_ativo", nullable = false)
     private boolean ativo = true;
 
@@ -70,6 +74,7 @@ public class Professor extends Pessoa implements Ativavel {
 
         this.registro = registro;
         this.ativo = true;
+
     }
     public void adicionarEscola(Escola escola) {
         if (!this.escolas.contains(escola)) {

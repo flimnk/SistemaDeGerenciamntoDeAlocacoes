@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 @NoArgsConstructor
 @Embeddable
 public class Email {
-    
+
 
     private static final Pattern EMAIL_PATTERN =
         Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
@@ -44,6 +44,12 @@ public class Email {
         return Objects.equals(endereco, email.endereco);
     }
 
+    @Override
+    public String toString() {
+        return "Email{" +
+                "endereco='" + endereco + '\'' +
+                '}';
+    }
     @Override
     public int hashCode() {
         return Objects.hash(endereco);
