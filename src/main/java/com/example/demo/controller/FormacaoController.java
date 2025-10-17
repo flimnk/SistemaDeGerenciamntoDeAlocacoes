@@ -40,7 +40,11 @@ public class FormacaoController {
 
     @PatchMapping("/{id}")
     public FormacaoResponse atualizar(@PathVariable Long id, @RequestBody FormacaoUpdateRequest request) {
-        return formacaoService.atualizar(id, request);
+        return formacaoService.atualizar( request);
+    }
+    @GetMapping("/minhas")
+    public FormacaoResponse buscarFormacoesPeloProfessor() {
+        return formacaoService.buscarMinhasFormacoes();
     }
 
     @DeleteMapping("/{id}")

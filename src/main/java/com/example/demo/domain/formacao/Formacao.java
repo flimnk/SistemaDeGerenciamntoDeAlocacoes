@@ -65,13 +65,11 @@ public class Formacao {
     }
 
 
-    public void atualizar(FormacaoUpdateRequest request, Professor professor) {
+    public void atualizar(FormacaoUpdateRequest request ) {
         if (request.nomeCurso() != null) this.setNomeCurso(request.nomeCurso());
         if (request.anoConclusao() != null) this.setAnoConclusao(request.anoConclusao());
         if (request.nomeInstituicao() != null) this.setNomeInstituicao(request.nomeInstituicao());
         if (request.categoria() != null) this.setCategoria(request.categoria());
-
-        if (professor != null) this.setProfessor(professor); // já recebe o professor válido
     }
 
     public void setProfessor(Professor professor) {

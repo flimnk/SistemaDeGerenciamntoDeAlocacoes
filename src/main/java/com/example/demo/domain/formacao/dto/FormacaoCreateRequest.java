@@ -16,8 +16,6 @@ public record FormacaoCreateRequest(
         String nomeInstituicao,
 
         @NotNull(message = "Categoria da titulação é obrigatória")
-        CategoriaDaTitulacao categoria,
+        CategoriaDaTitulacao categoria
 
-        @NotNull(message = "Professor é obrigatório")
-        Long professorId
 ) {}

@@ -6,11 +6,14 @@ import com.example.demo.domain.formacao.dto.FormacaoResponse;
 import com.example.demo.domain.formacao.dto.FormacaoUpdateRequest;
 import com.example.demo.domain.professor.Professor;
 
+import com.example.demo.infra.Exception.ProfessoNaoPossuiFormacaoException;
+import com.example.demo.infra.Exception.ProfessorInativoException;
 import com.example.demo.infra.Exception.ProfessorJaExisteException;
 import com.example.demo.infra.Exception.ProfessorJaPossuiFormacaoException;
 import com.example.demo.repository.FormacaoRepository;
 import com.example.demo.repository.ProfessorRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,20 +21,20 @@ import java.util.List;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class FormacaoService {
 
     private final FormacaoRepository formacaoRepository;
     private final ProfessorRepository professorRepository;
+    private  final SecurityService securityService;
 
-    public FormacaoService(FormacaoRepository formacaoRepository, ProfessorRepository professorRepository) {
-        this.formacaoRepository = formacaoRepository;
-        this.professorRepository = professorRepository;
-    }
+
 
     @Transactional
     public FormacaoResponse criar(FormacaoCreateRequest request) {
-        Professor professor = professorRepository.findById(request.professorId())
-                .orElseThrow(() -> new EntityNotFoundException("Professor não encontrado com id: " + request.professorId()));
+        var professorId = securityService.getAuthenticatedProfessorId();
+        Professor professor = professorRepository.findById(professorId)
+                .orElseThrow(() -> new EntityNotFoundException("Professor não encontrado com id: " + professorId));
 
         if(professor.getFormacao()!=null) throw  new ProfessorJaPossuiFormacaoException("Professor ja possui uma formacao: "+ professor.toString());
 
@@ -61,29 +64,38 @@ public class FormacaoService {
                 .orElseThrow(() -> new EntityNotFoundException("Formação não encontrada com id: " + id));
         return new FormacaoResponse(formacao);
     }
+    @Transactional(readOnly = true)
+    public FormacaoResponse buscarMinhasFormacoes() {
+        var professor = buscaEVerificaProfessor();
+        Formacao formacao = formacaoRepository.findByProfessor(professor)
+                .orElseThrow(() -> new EntityNotFoundException("Formação não encontrada com id: " + professor));
+        return new FormacaoResponse(formacao);
+    }
+
 
     @Transactional
-    public FormacaoResponse atualizar(Long id, FormacaoUpdateRequest request) {
-        Formacao formacao = formacaoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Formação não encontrada com id: " + id));
+    public FormacaoResponse atualizar( FormacaoUpdateRequest request) {
+        var professor = buscaEVerificaProfessor();
+        if(professor.getFormacao() == null) throw  new ProfessoNaoPossuiFormacaoException("Professor não possui formação para ser atualizada");
+        professor.getFormacao().atualizar(request);
 
-        Professor professor = null;
-        if (request.professorId() != null) {
-            professor = professorRepository.findById(request.professorId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Professor não encontrado com id: " + request.professorId()));
-        }
-
-
-        formacao.atualizar(request, professor);
-
-        return new FormacaoResponse(formacao);
+        return new FormacaoResponse(professor.getFormacao());
     }
 
     @Transactional
     public void deletar(Long id) {
-        Formacao formacao = formacaoRepository.findById(id)
+        var professor = buscaEVerificaProfessor();
+        Formacao formacao = formacaoRepository.findByProfessor(professor)
                 .orElseThrow(() -> new EntityNotFoundException("Formação não encontrada com id: " + id));
         formacaoRepository.delete(formacao);
+    }
+
+
+    public  Professor buscaEVerificaProfessor() {
+        var professorId = securityService.getAuthenticatedProfessorId();
+        Professor professor = professorRepository.findById(professorId)
+                .orElseThrow(() -> new EntityNotFoundException("Professor não encontrado com id: " + professorId));
+        if(!professor.isAtivo()) throw  new ProfessorInativoException("Professor inativo com id:"+professorId);
+        return  professor;
     }
 }

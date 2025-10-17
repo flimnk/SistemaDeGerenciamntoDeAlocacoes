@@ -8,6 +8,6 @@ public record FormacaoUpdateRequest(
         String nomeCurso,
         LocalDate anoConclusao,
         String nomeInstituicao,
-        CategoriaDaTitulacao categoria,
-        Long professorId
+        CategoriaDaTitulacao categoria
+
 ) {}
