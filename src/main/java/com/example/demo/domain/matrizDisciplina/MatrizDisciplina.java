@@ -7,12 +7,15 @@ import com.example.demo.domain.prioridade.Prioridade;
 import com.example.demo.infra.Exception.SemestreForaDoIntervaloExepition;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 
@@ -41,8 +44,6 @@ public class MatrizDisciplina {
     @Column(name = "semestre", nullable = false)
     private int semestre;
 
-    @Column(name="ativo",nullable = false)
-    private boolean ativo = true;
 
 
     @OneToMany(mappedBy = "matrizDisciplina", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

@@ -15,7 +15,7 @@ public record PrioridadeResponseSimples(
                 prioridade.getMatrizDisciplina() != null
                         ? new MatrizDisciplinaResponseSimples(prioridade.getMatrizDisciplina())
                         : null,
-                prioridade.getPrioridade()
+                prioridade.getPrioridadeNivel()
         );
     }
 }

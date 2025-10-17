@@ -3,7 +3,9 @@ package com.example.demo.domain.limiteTurno;// package com.example.demo.domain.l
 import com.example.demo.domain.horario.Turno; // Reutilizamos o enum Turno
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalTime;
 
@@ -12,7 +14,8 @@ import java.time.LocalTime;
     name = "limite_turno",
     uniqueConstraints = @UniqueConstraint(columnNames = {"turno"}) // Garante que só há um limite por turno
 )
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class LimiteTurno {
     

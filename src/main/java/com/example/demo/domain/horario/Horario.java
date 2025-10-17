@@ -5,7 +5,9 @@ import com.example.demo.domain.professorHorario.ProfessorHorario;
 import com.example.demo.service.validation.HorarioValidator;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalTime;
 import java.util.HashSet;
@@ -16,7 +18,8 @@ import java.util.Set;
         name = "horario",
         uniqueConstraints = @UniqueConstraint(columnNames = {"dia_semana", "turno", "horario_inicio", "horario_fim"})
 )
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Horario {
     @Id

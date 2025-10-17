@@ -16,7 +16,7 @@ public record ProfessorResponse(
         String email,
         String registro,
         Boolean ativo,
-        Set<EscolaResponseSimples> escoolas
+        Set<EscolaResponseSimples> escolas
 ) {
     public  ProfessorResponse(Professor professor){
         this(professor.getId(), professor.getNome(), professor.getCpf().getNumero(),professor.getEmail().getEndereco(),

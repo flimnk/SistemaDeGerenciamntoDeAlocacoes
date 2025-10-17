@@ -18,4 +18,12 @@ public record MatrizDisciplinaResponseSimples(
              md.getSemestre(),
              md.getObrigatoria().name());
     }
+
+    public MatrizDisciplinaResponseSimples(Long id, DisciplinaResponse disciplinaResponse, int cargaHoraria, int semestre, String obrigatoria) {
+        this.id = id;
+        this.disciplinaResponse = disciplinaResponse;
+        this.cargaHoraria = cargaHoraria;
+        this.semestre = semestre;
+        this.obrigatoria = obrigatoria;
+    }
 }

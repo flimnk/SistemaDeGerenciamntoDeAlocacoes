@@ -9,13 +9,14 @@ import org.hibernate.annotations.Where;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
 @AllArgsConstructor
 
 @NoArgsConstructor
 @Table (name = "disciplina")
-@Where(clause = "ativo = true")
+
 public class Disciplina implements Ativavel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

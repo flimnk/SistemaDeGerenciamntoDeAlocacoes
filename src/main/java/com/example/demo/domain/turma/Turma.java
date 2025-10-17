@@ -4,12 +4,15 @@ import com.example.demo.domain.alocacao.Alocacao;
 import com.example.demo.domain.curso.Curso;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @Table (name = "turma")

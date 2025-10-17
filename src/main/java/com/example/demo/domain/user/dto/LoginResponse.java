@@ -1,3 +1,12 @@
 package com.example.demo.domain.user.dto;
 
-public record LoginResponse(String token, String role) {}
+import com.example.demo.domain.professor.Professor;
+import com.example.demo.domain.professor.dto.ProfessorResponse;
+
+public record LoginResponse(
+        String token,
+        String role,
+        ProfessorResponse professorResponse
+) {
+
+}

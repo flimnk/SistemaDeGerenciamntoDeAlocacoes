@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.domain.prioridade.dto.DisciplinaInteresseResponse;
 import com.example.demo.domain.prioridade.dto.PrioridadeCreateRequest;
 import com.example.demo.domain.prioridade.dto.PrioridadeResponse;
 import com.example.demo.domain.prioridade.dto.PrioridadeUpdateRequest;
@@ -64,5 +65,15 @@ public class PrioridadeController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         prioridadeService.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/relatorio/interesse-disciplinas")
+    public ResponseEntity<List<DisciplinaInteresseResponse>> listarDisciplinasComInteresse() {
+
+        return ResponseEntity.ok(   prioridadeService.listarDisciplinasComDetalhesEContagem());
+    }
+    @GetMapping("/minhas")
+    public ResponseEntity<List<PrioridadeResponse>> buscarMinhasPrioridades() {
+        List<PrioridadeResponse> prioridades = prioridadeService.buscarMinhasPrioridades();
+        return ResponseEntity.ok(prioridades);
     }
 }

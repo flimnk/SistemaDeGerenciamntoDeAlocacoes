@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.domain.professor.dto.ProfessorResponse;
 import com.example.demo.domain.user.Role;
 import com.example.demo.domain.user.User;
 import com.example.demo.domain.user.dto.LoginRequest;
@@ -40,7 +41,8 @@ public class AuthController {
 
         String token = jwtService.generateToken(user);
 
-        return ResponseEntity.ok(new LoginResponse(token, user.getRole().name()));
+        return ResponseEntity.ok(new LoginResponse(token, user.getRole().name(),
+                (user.getProfessor() != null ) ? new ProfessorResponse(user.getProfessor()) : null));
     }
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {

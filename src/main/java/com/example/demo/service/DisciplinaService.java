@@ -70,6 +70,7 @@ public class DisciplinaService {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException(("Disciplina com ID " + id + " não foi encontrada."));
         }
+
         repository.deleteById(id);
     }
 

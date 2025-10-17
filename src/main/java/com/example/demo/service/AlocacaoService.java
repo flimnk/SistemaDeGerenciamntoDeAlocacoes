@@ -10,6 +10,7 @@ import com.example.demo.domain.horario.Horario;
 import com.example.demo.domain.matrizDisciplina.MatrizDisciplina;
 import com.example.demo.domain.professor.Professor;
 
+import com.example.demo.domain.professor.dto.ProfessorResponse;
 import com.example.demo.domain.professorHorario.ProfessorHorario;
 import com.example.demo.domain.turma.Turma;
 
@@ -42,7 +43,7 @@ public class AlocacaoService {
         MatrizDisciplina md = buscarMatrizDisciplinaEValidarAtividadeEscola(request.matrizDisciplinaId());
         Horario horario = buscarHorario(request.horarioId());
         Turma turma = buscarTurmaEValidarAtividadeEscola(request.turmaId());
-
+        vericaEscolaDoProfessor(professor,md);
         verificarDisponibilidadeProfessor(professor, horario);
         verificarConflitosDeAlocacao(professor, horario, turma, null);
 
@@ -93,6 +94,7 @@ public class AlocacaoService {
             novoProfessor = buscarProfessorEValidarAtividade(request.professorId());
             alocacao.setProfessor(novoProfessor);
             houveMudancaRelevante = true;
+            vericaEscolaDoProfessor(novoProfessor,novaMd);
         }
 
 
@@ -100,6 +102,7 @@ public class AlocacaoService {
             novaMd = buscarMatrizDisciplinaEValidarAtividadeEscola(request.matrizDisciplinaId());
             alocacao.setMatrizDisciplina(novaMd);
             mudouDisciplina = true;
+            vericaEscolaDoProfessor(novoProfessor,novaMd);
         }
 
 
@@ -137,8 +140,25 @@ public class AlocacaoService {
 
         alocacaoRepository.delete(alocacao);
     }
-    
 
+    @Transactional(readOnly = true)
+    public List<ProfessorResponse> buscarProfessoresElegiveis(Long matrizDisciplinaId, Long horarioId) {
+
+        // 1. Busca e valida a existência dos IDs (opcional, mas recomendado)
+        MatrizDisciplina md = mdRepository.findById(matrizDisciplinaId)
+                .orElseThrow(() -> new EntityNotFoundException("Matriz Disciplina não encontrada."));
+        Horario horario = horarioRepository.findById(horarioId)
+                .orElseThrow(() -> new EntityNotFoundException("Horário não encontrado."));
+
+
+        List<Professor> professoresElegiveis = professorRepository
+                .findElegiveisByMatrizDisciplinaAndHorario(matrizDisciplinaId, horarioId);
+
+
+        return professoresElegiveis.stream()
+                .map(ProfessorResponse::new)
+                .toList();
+    }
     
     private void validarAtividadeGeral(Alocacao alocacao) {
         // Alocação é inativa se o Professor não está ativo
@@ -198,7 +218,9 @@ public class AlocacaoService {
             throw new IllegalArgumentException("Professor inativo.");
         }
         return professor;
+
     }
+
 
     // MatrizDisciplina (valida a Escola)
     private MatrizDisciplina buscarMatrizDisciplinaEValidarAtividadeEscola(Long id) {
@@ -207,7 +229,7 @@ public class AlocacaoService {
         if (!md.getMatriz().getCurso().getEscola().isAtivo()) { // Assume MD -> Curso -> Escola
             throw new EscolaInativaExeption("Escola do Curso da Matriz Disciplina inativa.");
         }
-        return md;
+        return  md;
     }
 
     // Turma (valida a Escola, pois Turma -> Curso -> Escola)
@@ -235,5 +257,10 @@ public class AlocacaoService {
                             ") já atingiu o limite máximo de " + LIMITE_MAXIMO_ALOCACOES + " alocações."
             );
         }
+    }
+
+    public void vericaEscolaDoProfessor(Professor professor, MatrizDisciplina matrizDisciplina){
+        if(!professor.getEscolas().contains(matrizDisciplina.getMatriz()
+                .getCurso().getEscola())) throw  new ProfessorIndisponivelException("Professor não pode atuar em uma matéria em uma escola que não pertence");
     }
 }

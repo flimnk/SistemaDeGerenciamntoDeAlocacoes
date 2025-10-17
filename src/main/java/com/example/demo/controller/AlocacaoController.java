@@ -3,7 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.domain.alocacao.dto.AlocacaoCreateRequest;
 import com.example.demo.domain.alocacao.dto.AlocacaoResponse;
 import com.example.demo.domain.alocacao.dto.AlocacaoUpdateRequest;
+import com.example.demo.domain.professor.dto.ProfessorResponse;
 import com.example.demo.service.AlocacaoService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -73,4 +75,5 @@ public class AlocacaoController {
 
         return ResponseEntity.noContent().build();
     }
+
 }

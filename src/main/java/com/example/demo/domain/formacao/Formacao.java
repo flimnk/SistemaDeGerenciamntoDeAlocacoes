@@ -4,6 +4,7 @@ import com.example.demo.domain.formacao.dto.FormacaoUpdateRequest;
 import com.example.demo.domain.professor.Professor;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -11,7 +12,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(
         name = "formacao",

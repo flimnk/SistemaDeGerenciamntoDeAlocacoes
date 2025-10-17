@@ -7,8 +7,6 @@ public record PrioridadeCreateRequest(
         @NotNull(message = "O ID da Matriz Disciplina é obrigatório.")
         Long matrizDisciplinaId,
 
-        @NotNull(message = "O ID do Professor é obrigatório.")
-        Long professorId,
 
         @NotNull(message = "O nível de prioridade é obrigatório.")
         PrioridadeNivel prioridade

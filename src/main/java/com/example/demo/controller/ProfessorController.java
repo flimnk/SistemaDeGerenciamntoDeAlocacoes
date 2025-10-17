@@ -4,24 +4,25 @@ import com.example.demo.domain.professor.dto.ProfessorCreateRequest;
 import com.example.demo.domain.professor.dto.ProfessorDisponibilidadeReportResponse;
 import com.example.demo.domain.professor.dto.ProfessorResponse;
 import com.example.demo.domain.professor.dto.ProfessorUpdateRequest;
+import com.example.demo.service.AlocacaoService;
 import com.example.demo.service.ProfessorService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize; // Import necessário
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/professores")
 public class ProfessorController {
 
     private final ProfessorService professorService;
+    private final AlocacaoService alocacaoService;
 
-    public ProfessorController(ProfessorService professorService) {
-        this.professorService = professorService;
-    }
 
     // 1. CADASTRO (Item 1.2: Ação exclusiva do Administrador)
     @PostMapping
@@ -61,7 +62,6 @@ public class ProfessorController {
     }
 
 
-
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @securityService.isOwner(#id)")
     public ResponseEntity<ProfessorResponse> atualizar(
@@ -71,8 +71,6 @@ public class ProfessorController {
         ProfessorResponse response = professorService.atualizar(id, request);
         return ResponseEntity.ok(response);
     }
-
-
 
 
     @PutMapping("/{id}/ativar")
@@ -104,5 +102,26 @@ public class ProfessorController {
 
         return ResponseEntity.ok(relatorio);
 
+    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/elegiveis")
+    public ResponseEntity<List<ProfessorResponse>> buscarProfessoresElegiveis(
+            @RequestParam(name = "matrizDisciplinaId") Long matrizDisciplinaId,
+            @RequestParam(name = "horarioId") Long horarioId
+    ) {
+        try {
+            List<ProfessorResponse> professores = alocacaoService.buscarProfessoresElegiveis(matrizDisciplinaId, horarioId);
+
+            if (professores.isEmpty()) {
+                return ResponseEntity.noContent().build(); // Retorna 204 No Content se a lista estiver vazia
+            }
+
+            return ResponseEntity.ok(professores); // Retorna 200 OK com a lista
+
+        } catch (EntityNotFoundException e) {
+            // Se a MD ou Horário não existirem (validação no Service)
+            return ResponseEntity.badRequest().build(); // Retorna 400 Bad Request
+        }
+        // Você po
     }
 }

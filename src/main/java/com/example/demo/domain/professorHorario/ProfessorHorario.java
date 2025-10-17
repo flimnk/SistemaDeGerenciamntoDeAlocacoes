@@ -5,7 +5,9 @@ import com.example.demo.domain.professor.Professor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Optional;
 
@@ -13,10 +15,11 @@ import java.util.Optional;
 @Table(name = "professor_horario",
     uniqueConstraints = @UniqueConstraint(columnNames = {"professor_id", "horario_id"})
 )
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 
-public class ProfessorHorario {
+public class ProfessorHorario implements  Comparable<ProfessorHorario>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +35,7 @@ public class ProfessorHorario {
     @ManyToOne
     @JoinColumn(name = "horario_id")
     private Horario horario;
+
 
 
     @Column(name = "is_disponivel", nullable = false)
@@ -53,4 +57,9 @@ public class ProfessorHorario {
     public  void indisponibilizar(){
         this.disponivel = false;
     }
-}
+
+    @Override
+    public int compareTo(ProfessorHorario ph) {
+        return this.getHorario().getTurno().compareTo(ph.getHorario().getTurno());
+    }
+    }

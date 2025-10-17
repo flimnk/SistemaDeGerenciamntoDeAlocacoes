@@ -11,6 +11,7 @@ import com.example.demo.domain.formacao.Formacao;
 import com.example.demo.domain.professorHorario.ProfessorHorario;
 import com.example.demo.domain.professorHorario.dto.ProfessorHorarioResponse;
 import com.example.demo.domain.professorHorario.dto.ProfessorHorarioResponseSimples;
+import com.example.demo.domain.user.User;
 import com.example.demo.domain.vo.Cpf;
 import com.example.demo.domain.vo.Email;
 import com.example.demo.infra.Exception.EscolaInativaExeption;
@@ -20,6 +21,7 @@ import com.example.demo.repository.EscolaRepository;
 import com.example.demo.repository.FormacaoRepository;
 import com.example.demo.repository.ProfessorRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,16 +30,14 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
     private final FormacaoRepository formacaoRepository;
     private final EscolaRepository escolaRepository;
-    public ProfessorService(ProfessorRepository professorRepository, FormacaoRepository formacaoRepository, EscolaRepository escolaRepository) {
-        this.professorRepository = professorRepository;
-        this.formacaoRepository = formacaoRepository;
-        this.escolaRepository = escolaRepository;
-    }
+    private final UserService  userService;
+
 
     @Transactional
     public ProfessorResponse criar(ProfessorCreateRequest request) {
@@ -58,8 +58,9 @@ public class ProfessorService {
             escola.adicionarProfessor(professor);
         });
 
-
         professorRepository.save(professor);
+
+        userService.criarUsuarioParaProfessor(professor);
 
         return  new ProfessorResponse(professor);
     }
@@ -138,59 +139,54 @@ public class ProfessorService {
         professor.desativar();
         professorRepository.save(professor);
     }
+
     @Transactional(readOnly = true)
     public List<ProfessorDisponibilidadeReportResponse> buscarRelatorioDisponibilidadeInteresse() {
-        try {
-            List<Professor> professores = professorRepository.findByAtivoTrue();
-            List<ProfessorDisponibilidadeReportResponse> relatorio = new ArrayList<>();
 
 
-            for (Professor professor : professores) {
-                System.out.println(">> Processando professor: " + professor.getNome());
+        List<Professor> professores = professorRepository.findAllByAtivoTrue();
 
-                Set<ProfessorHorario> horariosDisponiveis = professor.getDisponibilidades().stream()
-                        .filter(ProfessorHorario::isDisponivel)
-                        .collect(Collectors.toSet());
+        List<ProfessorDisponibilidadeReportResponse> relatorio = new ArrayList<>();
+        System.out.println(professores);
+        professores.forEach(professor -> System.out.println(professor.getDisponibilidades()));
+        professores.forEach(professor -> System.out.println(professor.getPrioridades()));
+        for (Professor professor : professores) {
 
-                System.out.println("dwdwdw");
-                Set<Prioridade> prioridades = professor.getPrioridades();
-                System.out.println("swqsqwsqw");
-                List<ProfessorHorarioResponseSimples> horariosResponse = horariosDisponiveis.stream()
-                        .map(ProfessorHorarioResponseSimples::new)
-                        .toList();
+            // O acesso a .getDisponibilidades() e .getPrioridades() AGORA É SEGURO
+            // porque os dados foram carregados no JOIN FETCH.
 
-                List<PrioridadeResponseSimples> interessesResponse = prioridades.stream()
-                        .map(PrioridadeResponseSimples::new)
-                        .toList();
+            // 2. FILTRA E MAPPEIA OS HORÁRIOS
+            List<ProfessorHorario> horariosDisponiveis = professor.getDisponibilidades().stream()
+                    .filter(ProfessorHorario::isDisponivel)
+                    .sorted() // usa compareTo (ordem: MANHA < TARDE < NOITE)
+                    .collect(Collectors.toList());
 
-                relatorio.add(new ProfessorDisponibilidadeReportResponse(
-                        professor.getId(),
-                        professor.getNome(),
-                        professor.getEmail() != null ? professor.getEmail().getEndereco() : "Sem e-mail",
-                        professor.isAtivo(),
-                        horariosResponse,
-                        interessesResponse
-                ));
-            }
-
-            return relatorio.stream()
-                    .sorted(Comparator.comparing(r -> {
-                        if (r.horariosDisponiveis().isEmpty() ||
-                                r.horariosDisponiveis().get(0).horarioResponse() == null ||
-                                r.horariosDisponiveis().get(0).horarioResponse().turno() == null) {
-                            return Integer.MAX_VALUE;
-                        }
-                        return r.horariosDisponiveis().get(0).horarioResponse().turno().ordinal();
-                    }))
+            horariosDisponiveis.forEach(ph -> ph.getHorario());
+            List<ProfessorHorarioResponseSimples> horariosResponse = horariosDisponiveis.stream()
+                    .map(ProfessorHorarioResponseSimples::new) // Usa o construtor do DTO
                     .toList();
 
-        } catch (Exception e) {
-            e.printStackTrace(); // <— vai mostrar o stacktrace completo no console
-            throw e;
+            // 3. MAPPEIA AS PRIORIDADES (INTERESSES)
+            Set<Prioridade> prioridades = professor.getPrioridades();
+            List<PrioridadeResponseSimples> interessesResponse = prioridades.stream()
+                    .map(PrioridadeResponseSimples::new) // Usa o construtor do DTO
+                    .toList();
+
+            // 4. CRIA O DTO FINAL DO RELATÓRIO
+            relatorio.add(new ProfessorDisponibilidadeReportResponse(
+                    professor.getId(),
+                    professor.getNome(),
+                    professor.getEmail() != null ? professor.getEmail().getEndereco() : "Sem e-mail",
+                    professor.isAtivo(),
+                    horariosResponse,
+                    interessesResponse
+            ));
         }
+
+
+        return relatorio;
+
     }
-
-
 
 
     public  void  verificaDuplicacao(Cpf cpf , Email email,String registro){

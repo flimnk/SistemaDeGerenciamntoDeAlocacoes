@@ -8,6 +8,7 @@ import com.example.demo.domain.interfaces.Ativavel;
 import com.example.demo.domain.pessoa.Pessoa;
 import com.example.demo.domain.prioridade.Prioridade;
 import com.example.demo.domain.professorHorario.ProfessorHorario;
+import com.example.demo.domain.user.User;
 import com.example.demo.domain.vo.Cpf;
 import com.example.demo.domain.vo.Email;
 import jakarta.persistence.*;
@@ -54,6 +55,8 @@ public class Professor extends Pessoa implements Ativavel {
     @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Prioridade> prioridades = new HashSet<>();
 
+    @OneToOne(mappedBy = "professor", fetch = FetchType.LAZY)
+    private User user;
 
 
     @Column(name = "is_ativo", nullable = false)
